@@ -1,0 +1,38 @@
+{
+  "name": "rootlocal/yii2-crud",
+  "description": "yii2-crud extension",
+  "type": "yii2-extension",
+  "keywords": [
+    "yii2",
+    "extension"
+  ],
+  "license": "BSD-3-Clause",
+  "authors": [
+    {
+      "name": "Alexander Zakharov",
+      "email": "sys@eml.ru"
+    }
+  ],
+  "require": {
+    "php": ">=7.1",
+    "yiisoft/yii2": "~2.0"
+  },
+  "require-dev": {
+    "yiisoft/yii2-codeception": "~2.0",
+    "yiisoft/yii2-bootstrap": "~2.0.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "rootlocal\\crud\\": "src/"
+    }
+  },
+  "extra": {
+    "bootstrap": "rootlocal\\crud\\Bootstrap"
+  },
+  "repositories": [
+    {
+      "type": "composer",
+      "url": "https://asset-packagist.org"
+    }
+  ]
+}
