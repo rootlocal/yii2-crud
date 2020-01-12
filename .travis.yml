@@ -1,9 +1,10 @@
+language: php
 
 env:
   global:
     - DEFAULT_COMPOSER_FLAGS="--prefer-dist --no-interaction --no-progress --optimize-autoloader"
 
-language: php
+
 
 php:
   - 7.0
@@ -22,9 +23,6 @@ cache:
     - ${HOME}/.composer/cache
     - vendor/
 
-before_install:
-#  - composer config --global github-oauth.github.com "$GITHUB_TOKEN"
-
 install:
   # update extensions
   - pear config-set preferred_state beta
@@ -40,9 +38,7 @@ install:
       # gmagick is not installed on travis currently
       #printf "\n" | pecl install gmagick
     fi
-
-  #- yes | if [ ! -n "$(php -m | grep ldap)" ]; then  pecl install ldap; fi;
-
+    
   # update composer
   - travis_retry composer self-update && composer --version
   - export PATH="${HOME}/.composer/vendor/bin:${PATH}"
@@ -66,22 +62,7 @@ before_script:
   - composer validate --strict
 
 script:
-
   - |
     cd tests
     php ./bin/yii serve/index > /dev/null 2>&1 &
     php ../vendor/bin/codecept run --coverage --coverage-xml
-    cd ..
-
-after_script:
-#  - vendor/bin/test-reporter --coverage-report=tests/codeception/_output/coverage.xml
-
-
-addons:
-  code_climate:
-    repo_token:
-      secure: l+/uzxbAWb9wdmQtb4LnsJv4mFYhleTY1GYhL+RD20Z4A8tdYsWuei3oyEi9gmlPrt/HWbBG21Q8dOLUgT1E7fBVoiUdkIa+Ix+RgG9K61xUcfR5CKcNGG/3zv0/4/cc9hd+WJ+C5T1cHuiazdTovd/mtzVJx9BCrB/ZtTRptNF9yvSZbHwHDmqOu9bA2r+w1h9zFL/NPRfUwUGra4kzOeOpwiLcZ90xW0UNJscCqCzm+j9V3kQJUXMp+lQ1z/Js33GpyYpd/xqc4QEOlHn1Mgq4CGka5Rk+Fgpa+5UYpvIz3m9BHkWuP7DWah41uf3F8Z6Ggu86TCobA62tepQdX9bw/dDQpv0bl3qz+W1QLv3E9LPGg2G6QWetk5HXX+Nbl23TwPzovjtLQL1LTz0NyvcAgvbSJkDKYzGArI0/jhkv/s0I5h0DAbQHFbYe4QfDYUgp+g0hGJbKWykCs15w3Eqp8agBoLIeUexvpb3HHjP2cxUdQ6AnI3yBkUea9TAOt8UL+BnORrHZjPvjib/3ww/9/BPMmENE3BlUG3b8tco3bEVGqoRNzO2/9coPoBNBeaqzfd77YC36344W6TD/+3WXjrM/gbhbz7iCJSbmw77cJktvaaO36ahpO7398pjSzfQUY3a8n17l7kNkYtGneUX/1XfLc9nTSoGJaY1cXjY=
-  apt:
-    packages:
-#      - ldap-utils
-#      - slapd
