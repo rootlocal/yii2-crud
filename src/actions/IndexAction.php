@@ -128,7 +128,7 @@ class IndexAction extends Action
             return $this->_model;
         }
 
-        throw new ErrorException('searchModel not instanceof SearchModelInterface');
+        throw new ErrorException('searchModel not instanceof ' . SearchModelInterface::class);
     }
 
     /**
@@ -154,7 +154,7 @@ class IndexAction extends Action
         }
 
         if (!($this->_dataProvider instanceof ActiveDataProvider))
-            throw new InvalidConfigException('dataProvider not instanceof ActiveDataProvider');
+            throw new InvalidConfigException('dataProvider not instanceof ' . ActiveDataProvider::class);
 
         return $this->_dataProvider;
     }
