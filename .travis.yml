@@ -5,7 +5,6 @@ env:
     - DEFAULT_COMPOSER_FLAGS="--prefer-dist --no-interaction --no-progress --optimize-autoloader"
 
 php:
-  - 7.0
   - 7.1
   - 7.2
   - 7.3
@@ -50,12 +49,14 @@ install:
     cd ..
 
 before_script:
+  - composer validate --strict
+
   # initialize databases
   - psql -c 'create database travis_ci_test;' -U postgres
   - |
       cd tests
       php ./bin/yii migrate --interactive=0
-  - composer validate --strict
+
 
 script:
   - |
