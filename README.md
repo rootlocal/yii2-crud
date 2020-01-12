@@ -1,5 +1,6 @@
 # Create, read, update and delete
 
+[![Latest Stable Version](https://img.shields.io/packagist/v/rootlocal/yii2-crud.svg)](https://packagist.org/packages/rootlocal/yii2-crud)
 [![Build Status](https://travis-ci.org/rootlocal/yii2-ldap.svg?branch=master)](https://travis-ci.org/rootlocal/yii2-ldap)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/cb5826d209c0ec9ac0d6/test_coverage)](https://codeclimate.com/github/rootlocal/yii2-crud/test_coverage)
 
