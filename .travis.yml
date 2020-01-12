@@ -1,18 +1,14 @@
+language: php
 
 env:
   global:
     - DEFAULT_COMPOSER_FLAGS="--prefer-dist --no-interaction --no-progress --optimize-autoloader"
 
-language: php
-
 php:
-  - 7.0
   - 7.1
   - 7.2
   - 7.3
   - 7.4
-
-sudo: false
 
 services:
   - postgresql
@@ -21,9 +17,6 @@ cache:
   directories:
     - ${HOME}/.composer/cache
     - vendor/
-
-before_install:
-#  - composer config --global github-oauth.github.com "$GITHUB_TOKEN"
 
 install:
   # update extensions
@@ -40,9 +33,7 @@ install:
       # gmagick is not installed on travis currently
       #printf "\n" | pecl install gmagick
     fi
-
-  #- yes | if [ ! -n "$(php -m | grep ldap)" ]; then  pecl install ldap; fi;
-
+    
   # update composer
   - travis_retry composer self-update && composer --version
   - export PATH="${HOME}/.composer/vendor/bin:${PATH}"
@@ -55,32 +46,36 @@ install:
     chmod -R 0777 app/runtime
     chmod -R 0777 app/web/assets
     chmod +x bin/yii
-    cd ..
+    cd ../
 
 before_script:
-  # initialize databases
-  - psql -c 'create database travis_ci_test;' -U postgres
-  -|
-   cd tests
-   php ./bin/yii migrate --interactive=0
   - composer validate --strict
 
-script:
+  # initialize databases
+  - psql -c 'create database travis_ci_test;' -U postgres
+  - |
+      cd tests
+      php ./bin/yii migrate --interactive=0
+      cd ../
 
+  # codeclimate
+  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+  - chmod +x ./cc-test-reporter
+  - ./cc-test-reporter before-build
+
+
+script:
   - |
     cd tests
     php ./bin/yii serve/index > /dev/null 2>&1 &
     php ../vendor/bin/codecept run --coverage --coverage-xml
-    cd ..
+    cd ../
 
 after_script:
-#  - vendor/bin/test-reporter --coverage-report=tests/codeception/_output/coverage.xml
-
+  - mv tests/codeception/_output/coverage.xml clover.xml
+  - ./cc-test-reporter after-build --coverage-input-type clover --id b724dfc30afed05830bf8583386b61a76b861998f57a174d6b87b5c9bfba4796 --exit-code $TRAVIS_TEST_RESULT
 
 addons:
-  code_climate:
-    repo_token:
-      secure: l+/uzxbAWb9wdmQtb4LnsJv4mFYhleTY1GYhL+RD20Z4A8tdYsWuei3oyEi9gmlPrt/HWbBG21Q8dOLUgT1E7fBVoiUdkIa+Ix+RgG9K61xUcfR5CKcNGG/3zv0/4/cc9hd+WJ+C5T1cHuiazdTovd/mtzVJx9BCrB/ZtTRptNF9yvSZbHwHDmqOu9bA2r+w1h9zFL/NPRfUwUGra4kzOeOpwiLcZ90xW0UNJscCqCzm+j9V3kQJUXMp+lQ1z/Js33GpyYpd/xqc4QEOlHn1Mgq4CGka5Rk+Fgpa+5UYpvIz3m9BHkWuP7DWah41uf3F8Z6Ggu86TCobA62tepQdX9bw/dDQpv0bl3qz+W1QLv3E9LPGg2G6QWetk5HXX+Nbl23TwPzovjtLQL1LTz0NyvcAgvbSJkDKYzGArI0/jhkv/s0I5h0DAbQHFbYe4QfDYUgp+g0hGJbKWykCs15w3Eqp8agBoLIeUexvpb3HHjP2cxUdQ6AnI3yBkUea9TAOt8UL+BnORrHZjPvjib/3ww/9/BPMmENE3BlUG3b8tco3bEVGqoRNzO2/9coPoBNBeaqzfd77YC36344W6TD/+3WXjrM/gbhbz7iCJSbmw77cJktvaaO36ahpO7398pjSzfQUY3a8n17l7kNkYtGneUX/1XfLc9nTSoGJaY1cXjY=
   apt:
     packages:
 #      - ldap-utils
