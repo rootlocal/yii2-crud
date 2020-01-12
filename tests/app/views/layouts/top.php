@@ -2,7 +2,6 @@
 
 /**
  * @var $this View
- * @var $content string
  */
 
 use yii\helpers\Html;
@@ -18,27 +17,19 @@ use yii\helpers\Inflector;
         <?php if (isset($this->blocks['content-header'])): ?>
             <h1><?= $this->blocks['content-header'] ?></h1>
         <?php else: ?>
-            <h1>
-                <?php
-                if ($this->title !== null) {
-                    echo Html::encode($this->title);
-                } else {
-                    echo Inflector::camel2words(
-                        Inflector::id2camel($this->context->module->id)
-                    );
-
-                    echo ($this->context->module->id !== Yii::$app->id) ? '<small>Module</small>' : '';
-                } ?>
-            </h1>
+            <?php if ($this->title !== null): ?>
+                <h1><?= Html::encode($this->title) ?></h1>
+            <?php else: ?>
+                <h1><?= Inflector::camel2words(Inflector::id2camel($this->context->module->id)) ?>
+                    <?= ($this->context->module->id !== Yii::$app->id) ? '<small>Module</small>' : '' ?></h1>
+            <?php endif; ?>
         <?php endif; ?>
     </div>
 </div>
 
 <div class="row">
     <div class="col-md-12">
-        <?= Breadcrumbs::widget([
-            'links' => isset($this->params['breadcrumbs']) ? $this->params['breadcrumbs'] : []
-        ]) ?>
+        <?= Breadcrumbs::widget(['links' => isset($this->params['breadcrumbs']) ? $this->params['breadcrumbs'] : []]) ?>
     </div>
 </div>
 

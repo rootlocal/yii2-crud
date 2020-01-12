@@ -29,4 +29,9 @@ phpunit.phar
 # vagrant runtime
 /.vagrant
 
+# php composer
 composer.lock
+
+# ruby bundle
+Gemfile.local
+Gemfile.lock

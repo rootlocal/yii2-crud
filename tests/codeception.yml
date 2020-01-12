@@ -7,9 +7,6 @@ paths:
   output: codeception/_output
   data: codeception/_data
   support: codeception/_support
-  #envs: codeception/_envs
-  #log: codeception/_log
-  #helpers: codeception/_support
 
 bootstrap: _bootstrap.php
 
@@ -18,9 +15,6 @@ settings:
   memory_limit: 1024M
 
 config:
-# the entry script URL (with host info) for functional and acceptance tests
-# PLEASE ADJUST IT TO THE ACTUAL ENTRY SCRIPT URL
-# test_entry_url: http://localhost:8080/index-test.php
 modules:
   config:
 

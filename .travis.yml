@@ -3,12 +3,24 @@ language: php
 env:
   global:
     - DEFAULT_COMPOSER_FLAGS="--prefer-dist --no-interaction --no-progress --optimize-autoloader"
+    - DEFAULT_CODECEPT_FLAGS=""
+    - DEFAULT_DB="sqlite"
+    - TASK_TESTS_COVERAGE=0
 
-php:
-  - 7.1
-  - 7.2
-  - 7.3
-  - 7.4
+matrix:
+  fast_finish: true
+  include:
+    # run tests coverage on PHP 7.1
+    - php: "7.4"
+      env:
+        - TASK_TESTS_COVERAGE=1
+
+    - php: "7.3"
+      env:
+        - DEFAULT_DB="psql"
+
+    - php: "7.2"
+    - php: "7.1"
 
 services:
   - postgresql
@@ -19,6 +31,9 @@ cache:
     - vendor/
 
 install:
+  - php --version
+  - php -m
+
   # update extensions
   - pear config-set preferred_state beta
   - pecl channel-update pecl.php.net
@@ -49,31 +64,50 @@ install:
     cd ../
 
 before_script:
+  - echo "VENDOR BIN - $(pwd)/vendor/bin"
+  - export PATH="$(pwd)/vendor/bin:${PATH}"
   - composer validate --strict
 
   # initialize databases
-  - psql -c 'create database travis_ci_test;' -U postgres
   - |
-      cd tests
-      php ./bin/yii migrate --interactive=0
-      cd ../
+    if [ ${DEFAULT_DB} == "psql" ]; then
+      psql -V
+      psql -c "create user test with password 'test';" -U postgres
+      psql -c "create database test owner test;" -U postgres
+      mv tests/app/config/db.php tests/app/config/db_sqlite.php
+      mv tests/app/config/db_psql.php tests/app/config/db.php
+    fi
 
-  # codeclimate
-  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
-  - chmod +x ./cc-test-reporter
-  - ./cc-test-reporter before-build
+  # apply migrations
+  - php ./tests/bin/yii migrate --interactive=0
 
+  # coverage
+  - |
+    if [ ${TASK_TESTS_COVERAGE} == 1 ]; then
+      DEFAULT_CODECEPT_FLAGS="--coverage --coverage-xml --coverage-html"
+      # codeclimate
+      curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+      chmod +x ./cc-test-reporter
+      ./cc-test-reporter before-build
+    fi
 
 script:
   - |
     cd tests
+    # start serve
     php ./bin/yii serve/index > /dev/null 2>&1 &
-    php ../vendor/bin/codecept run --coverage --coverage-xml
+    # start tests
+    php ../vendor/bin/codecept run ${DEFAULT_CODECEPT_FLAGS}
     cd ../
 
 after_script:
-  - mv tests/codeception/_output/coverage.xml clover.xml
-  - ./cc-test-reporter after-build --coverage-input-type clover --id b724dfc30afed05830bf8583386b61a76b861998f57a174d6b87b5c9bfba4796 --exit-code $TRAVIS_TEST_RESULT
+  - |
+    if [ ${TASK_TESTS_COVERAGE} == 1 ]; then
+      mv tests/codeception/_output/coverage.xml clover.xml
+      ./cc-test-reporter after-build --coverage-input-type clover \
+      --id b724dfc30afed05830bf8583386b61a76b861998f57a174d6b87b5c9bfba4796 \
+      --exit-code $TRAVIS_TEST_RESULT
+    fi
 
 addons:
   apt:

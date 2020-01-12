@@ -100,7 +100,7 @@ class BookCest
         $model = Book::findOne(['name' => 'erewfwef']);
         $I->amOnPage(['book/view-lambda', 'id' => $model->id]);
         $I->seeResponseCodeIs(HttpCode::OK);
-        $I->see('View erewfwef');
+        $I->see('View erewfwef', 'h1');
     }
 
     /**

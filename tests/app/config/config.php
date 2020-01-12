@@ -40,10 +40,7 @@ return [
             'appendTimestamp' => true,
         ],
 
-        'db' => [
-            'class' => \yii\db\Connection::class,
-            'dsn' => 'sqlite:@runtime/data.db',
-        ],
+        'db' => require(__DIR__ . '/db.php'),
 
         'mailer' => [
             'useFileTransport' => true,

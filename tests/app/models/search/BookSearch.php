@@ -53,7 +53,6 @@ class BookSearch extends Book implements SearchModelInterface
         return $this->_query;
     }
 
-
     /**
      * @param BookQuery $query
      */
@@ -64,10 +63,10 @@ class BookSearch extends Book implements SearchModelInterface
 
     /**
      * Creates data provider instance with search query applied
-     * @param array $params
+     * @param array|null $params
      * @return ActiveDataProvider
      */
-    public function search($params = [])
+    public function search($params)
     {
         $query = $this->getQuery();
 

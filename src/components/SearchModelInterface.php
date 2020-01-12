@@ -12,9 +12,9 @@ interface SearchModelInterface
 {
 
     /**
-     * @param array $params
+     * @param array|null $params
      * @return ActiveDataProvider
      */
-    public function search($params = []);
+    public function search($params);
 
 }
