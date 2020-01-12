@@ -35,3 +35,4 @@ composer.lock
 # ruby bundle
 Gemfile.local
 Gemfile.lock
+phpunit.xml
