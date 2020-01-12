@@ -57,9 +57,24 @@ before_script:
       cd tests
       php ./bin/yii migrate --interactive=0
 
+  # codeclimate
+  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+  - chmod +x ./cc-test-reporter
+  - ./cc-test-reporter before-build
+
 
 script:
   - |
     cd tests
     php ./bin/yii serve/index > /dev/null 2>&1 &
     php ../vendor/bin/codecept run --coverage --coverage-xml
+
+after_script:
+  - mv tests/codeception/_output/coverage.xml clover.xml
+  - ./cc-test-reporter after-build --coverage-input-type clover --id b724dfc30afed05830bf8583386b61a76b861998f57a174d6b87b5c9bfba4796 --exit-code $TRAVIS_TEST_RESULT
+
+addons:
+  apt:
+    packages:
+#      - ldap-utils
+#      - slapd
