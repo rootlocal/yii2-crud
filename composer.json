@@ -1,18 +1,24 @@
 {
   "name": "rootlocal/yii2-crud",
-  "description": "yii2-crud extension",
+  "description": "Create, read, update and delete extension",
   "type": "yii2-extension",
   "keywords": [
     "yii2",
-    "extension"
+    "extension",
+    "crud"
   ],
   "license": "BSD-3-Clause",
   "authors": [
     {
       "name": "Alexander Zakharov",
-      "email": "sys@eml.ru"
+      "email": "sys@eml.ru",
+      "homepage": "https://github.com/rootlocal/yii2-crud"
     }
   ],
+  "support": {
+    "issues": "https://github.com/rootlocal/yii2-crud/issues?state=open",
+    "source": "https://github.com/rootlocal/yii2-crud"
+  },
   "require": {
     "php": ">=7.1",
     "yiisoft/yii2": "~2.0",
