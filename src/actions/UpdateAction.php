@@ -8,21 +8,24 @@ use yii\db\ActiveRecord;
 use yii\web\Response;
 use yii\base\ErrorException;
 use yii\web\NotFoundHttpException;
+use Closure;
 
 /**
  * Class UpdateAction
  * @package rootlocal\crud\actions
+ *
+ * ActiveRecord is the base class for classes representing relational data in terms of objects
+ * ```php
+ * 'model' => function ($id) {
+ *      return User::find()->where(['id' => $id])->active()->one();
+ * }
+ * ```
+ * @property string|Closure $model
  */
 class UpdateAction extends Action
 {
     /**
-     * @var ActiveRecord
-     * ActiveRecord is the base class for classes representing relational data in terms of objects
-     */
-    public $model;
-
-    /**
-     * @var ActiveRecord
+     * @var string|Closure
      */
     private $_model;
 
@@ -64,10 +67,6 @@ class UpdateAction extends Action
     {
         parent::init();
 
-        if (empty($this->model)) {
-            throw new ErrorException(Yii::t('rootlocal/crud', 'Model not specified'));
-        }
-
         if (Yii::$app->request->get('redirect') !== null) {
             $this->redirect = [Yii::$app->request->get('redirect')];
         }
@@ -76,7 +75,6 @@ class UpdateAction extends Action
     /**
      * @param $id int
      * @return array|string
-     * @throws NotFoundHttpException
      */
     public function run($id)
     {
@@ -124,23 +122,50 @@ class UpdateAction extends Action
      * @param int $id
      * @return ActiveRecord the loaded model
      * @throws NotFoundHttpException if the model cannot be found
+     * @throws ErrorException
      */
     protected function findModel($id)
     {
+        $model = $this->getModel();
+
+        if ($model instanceof Closure) {
+            $objectClass = call_user_func($model, $id);
+        } else {
+
+            /**
+             * @var ActiveRecord $model
+             */
+            $objectClass = $model::findOne($id);
+        }
+
+        if ($objectClass === null) {
+            throw new NotFoundHttpException(Yii::t('rootlocal/crud',
+                'The requested page does not exist.'
+            )
+            );
+        }
+
+        return $objectClass;
+    }
+
+    /**
+     * @return string|Closure
+     * @throws ErrorException
+     */
+    public function getModel()
+    {
         if ($this->_model === null) {
-            $this->_model = $this->model::findOne($id);
-
-            if ($this->scenario !== null) {
-                $this->_model->scenario = $this->scenario;
-            }
-
-            if ($this->_model === null) {
-                throw new NotFoundHttpException(Yii::t('rootlocal/crud',
-                    'The requested page does not exist.')
-                );
-            }
+            throw new ErrorException(Yii::t('rootlocal/crud', 'Model not specified'));
         }
 
         return $this->_model;
+    }
+
+    /**
+     * @param $model
+     */
+    public function setModel($model): void
+    {
+        $this->_model = $model;
     }
 }

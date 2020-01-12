@@ -3,7 +3,6 @@
 namespace rootlocal\crud\actions;
 
 use Yii;
-use yii\base\Model;
 use yii\web\Response;
 use yii\base\ErrorException;
 use yii\data\ActiveDataProvider;
@@ -16,26 +15,29 @@ use rootlocal\crud\components\SearchModelInterface;
  * Class IndexAction
  * @package rootlocal\crud\actions
  *
- * @property Closure $dataProvider an anonymous function
+ *
  * ```php
- *              'dataProvider' => function ($model, $queryParams) {
- *                    return $model->search($queryParams);
- *               }
+ * 'dataProvider' => function ($model, $queryParams) {
+ *      return $model->search($queryParams);
+ * }
  * ```
- * @property SearchModelInterface $model
+ * @property Closure|null $dataProvider an anonymous function
+ *
+ * ```php
+ * 'searchModel' => function () {
+ *      return new UserSearch();
+ * }
+ * ```
+ * @property string|SearchModelInterface|Closure $searchModel
+ *
  * @property array $queryParams
  */
 class IndexAction extends Action
 {
     /**
-     * @var string|Model|Closure
-     * ```php
-     *      'searchModel' => function () {
-     *          return new UserSearch();
-     *      }
-     * ```
+     * @var string|SearchModelInterface|Closure
      */
-    public $searchModel;
+    private $_searchModel;
 
     /**
      * @var SearchModelInterface
@@ -60,8 +62,6 @@ class IndexAction extends Action
 
     /**
      * @return string
-     * @throws InvalidConfigException
-     * @throws ErrorException
      */
     public function run()
     {
@@ -82,35 +82,53 @@ class IndexAction extends Action
     }
 
     /**
-     * @return SearchModelInterface
-     * @throws InvalidConfigException
+     * @return Closure|string|SearchModelInterface
      * @throws ErrorException
      */
-    private function getModel()
+    public function getSearchModel()
+    {
+        if ($this->_searchModel === null) {
+            throw new ErrorException(Yii::t('rootlocal/crud', 'No search model specified'));
+        }
+
+        return $this->_searchModel;
+    }
+
+    /**
+     * @param $searchModel Closure|string|SearchModelInterface
+     */
+    public function setSearchModel($searchModel): void
+    {
+        $this->_searchModel = $searchModel;
+    }
+
+    /**
+     * @return SearchModelInterface
+     * @throws ErrorException
+     * @throws InvalidConfigException
+     */
+    public function getModel(): SearchModelInterface
     {
         if ($this->_model === null) {
 
-            if ($this->searchModel === null) {
-                throw new ErrorException(Yii::t('rootlocal/crud', 'No search model specified'));
+            if (is_string($this->getSearchModel())) {
+                $this->_model = Yii::createObject(['class' => $this->getSearchModel()]);
             }
 
-            if (is_string($this->searchModel)) {
-                $this->_model = Yii::createObject(['class' => $this->searchModel]);
+            if ($this->getSearchModel() instanceof Closure) {
+                $this->_model = call_user_func($this->getSearchModel());
             }
 
-            if (is_object($this->searchModel)) {
-
-                if ($this->searchModel instanceof Closure) {
-                    $this->_model = call_user_func($this->searchModel);
-                }
-
-                if ($this->searchModel instanceof Model) {
-                    $this->_model = $this->searchModel;
-                }
+            if ($this->getSearchModel() instanceof SearchModelInterface) {
+                $this->_model = $this->getSearchModel();
             }
         }
 
-        return $this->_model;
+        if ($this->_model instanceof SearchModelInterface) {
+            return $this->_model;
+        }
+
+        throw new ErrorException('searchModel not instanceof SearchModelInterface');
     }
 
     /**
@@ -128,28 +146,23 @@ class IndexAction extends Action
     /**
      * @return ActiveDataProvider
      * @throws InvalidConfigException
-     * @throws ErrorException
      */
-    public function getDataProvider()
+    public function getDataProvider(): ActiveDataProvider
     {
         if ($this->_dataProvider === null) {
-            $dataProvider = $this->getModel()->search($this->getQueryParams());
-
-            if ($dataProvider instanceof ActiveDataProvider)
-                $this->_dataProvider = $dataProvider;
-            else
-                throw new InvalidConfigException('Invalid Configuration for attribute dataProvider');
+            $this->_dataProvider = $this->getModel()->search($this->getQueryParams());
         }
+
+        if (!($this->_dataProvider instanceof ActiveDataProvider))
+            throw new InvalidConfigException('dataProvider not instanceof ActiveDataProvider');
 
         return $this->_dataProvider;
     }
 
     /**
      * @param $dataProvider Closure
-     * @throws InvalidConfigException
-     * @throws ErrorException
      */
-    public function setDataProvider($dataProvider)
+    public function setDataProvider($dataProvider): void
     {
         if ($dataProvider instanceof Closure) {
             $this->_dataProvider = call_user_func($dataProvider, $this->getModel(), $this->getQueryParams());

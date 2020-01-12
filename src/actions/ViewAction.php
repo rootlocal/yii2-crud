@@ -13,22 +13,19 @@ use Closure;
 /**
  * Class ViewAction
  * @package rootlocal\crud\actions
+ *
+ * ActiveRecord is the base class for classes representing relational data in terms of objects
+ * ```php
+ * 'model' => function ($id) {
+ *      return User::find()->where(['id' => $id])->active()->one();
+ * }
+ * ```
+ * @property string|Closure $model
  */
 class ViewAction extends Action
 {
     /**
-     * @var ActiveRecord|Closure
-     * ActiveRecord is the base class for classes representing relational data in terms of objects
-     * ```php
-     * 'model' => function ($id) {
-     *      return User::find()->where(['id' => $id])->active()->one();
-     * }
-     * ```
-     */
-    public $model;
-
-    /**
-     * @var ActiveRecord
+     * @var string|Closure
      */
     private $_model;
 
@@ -39,22 +36,8 @@ class ViewAction extends Action
     public $view = 'view';
 
     /**
-     * {@inheritDoc}
-     * @throws ErrorException
-     */
-    public function init()
-    {
-        parent::init();
-
-        if (empty($this->model)) {
-            throw new ErrorException(Yii::t('rootlocal/crud', 'Model not specified'));
-        }
-    }
-
-    /**
      * @param $id int
      * @return string
-     * @throws NotFoundHttpException
      */
     public function run($id)
     {
@@ -69,32 +52,55 @@ class ViewAction extends Action
     }
 
     /**
+     * @return Closure|string
+     * @throws ErrorException
+     */
+    public function getModel()
+    {
+        if ($this->_model === null) {
+            throw new ErrorException(Yii::t('rootlocal/crud', 'Model not specified'));
+        }
+
+        return $this->_model;
+    }
+
+    /**
+     * @param $model Closure|string
+     */
+    public function setModel($model): void
+    {
+        $this->_model = $model;
+    }
+
+    /**
      * Finds the Alias model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param int $id
      * @return ActiveRecord the loaded model
      * @throws NotFoundHttpException if the model cannot be found
+     * @throws ErrorException
      */
-    protected function findModel($id)
+    protected function findModel($id): ActiveRecord
     {
-        if ($this->_model === null) {
+        $model = $this->getModel();
 
-            if ($this->model instanceof Closure) {
+        if ($model instanceof Closure) {
+            $objectClass = call_user_func($model, $id);
+        } else {
 
-                $this->_model = call_user_func($this->model, $id);
-
-            } else {
-                $this->_model = $this->model::findOne($id);
-            }
-
-
-            if ($this->_model === null) {
-                throw new NotFoundHttpException(Yii::t('rootlocal/crud',
-                    'The requested page does not exist.')
-                );
-            }
+            /**
+             * @var ActiveRecord $model
+             */
+            $objectClass = $model::findOne($id);
         }
 
-        return $this->_model;
+        if ($objectClass === null) {
+            throw new NotFoundHttpException(Yii::t('rootlocal/crud',
+                'The requested page does not exist.'
+            )
+            );
+        }
+
+        return $objectClass;
     }
 }

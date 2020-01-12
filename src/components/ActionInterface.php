@@ -3,10 +3,10 @@
 namespace rootlocal\crud\components;
 
 /**
- * Class Action
+ * Interface ActionInterface
  * @package rootlocal\crud\components
  */
-class Action extends \yii\base\Action implements ActionInterface
+interface ActionInterface
 {
 
 }

@@ -3,6 +3,7 @@
 namespace rootlocal\crud;
 
 use yii\base\BootstrapInterface;
+use yii\base\Application;
 
 /**
  * Class Bootstrap
@@ -11,7 +12,8 @@ use yii\base\BootstrapInterface;
 class Bootstrap implements BootstrapInterface
 {
     /**
-     * @inheritdoc
+     * @{inheritdoc}
+     * @param Application $app
      */
     public function bootstrap($app)
     {
@@ -20,7 +22,7 @@ class Bootstrap implements BootstrapInterface
             $app->i18n->translations['rootlocal/crud'] = [
                 'class' => 'yii\i18n\PhpMessageSource',
                 'sourceLanguage' => 'en-US',
-                'basePath' => '@rootlocal/crud/messages',
+                'basePath' => __DIR__ . '/messages',
             ];
         }
     }

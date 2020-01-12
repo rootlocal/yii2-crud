@@ -2,29 +2,31 @@
 
 namespace rootlocal\crud\actions;
 
-use Throwable;
 use Yii;
 use rootlocal\crud\components\Action;
 use yii\db\ActiveRecord;
-use yii\db\StaleObjectException;
 use yii\web\Response;
 use yii\base\ErrorException;
 use yii\web\NotFoundHttpException;
+use Closure;
 
 /**
  * Class ViewAction
  * @package rootlocal\crud\actions
+ *
+ * ActiveRecord is the base class for classes representing relational data in terms of objects
+ * ```php
+ * 'model' => function ($id) {
+ *      return User::find()->where(['id' => $id])->active()->one();
+ * }
+ * ```
+ * @property string|Closure $model
  */
 class DeleteAction extends Action
 {
     /**
      * @var ActiveRecord
      * ActiveRecord is the base class for classes representing relational data in terms of objects
-     */
-    public $model;
-
-    /**
-     * @var ActiveRecord
      */
     private $_model;
 
@@ -48,49 +50,38 @@ class DeleteAction extends Action
 
     /**
      * {@inheritDoc}
-     * @throws ErrorException
      */
     public function init()
     {
         parent::init();
 
-        if (empty($this->model)) {
-            throw new ErrorException(Yii::t('rootlocal/crud', 'Model not specified'));
-        }
-
-        if (Yii::$app->request->get('redirect') !== null) {
-            $this->redirect = [Yii::$app->request->get('redirect')];
-        }
-
         if ($this->redirect === null) {
             $referrer = Yii::$app->request->getReferrer();
             $this->redirect = $referrer === null ? ['index'] : $referrer;
         }
-
     }
 
     /**
      * @param $id int
+     * @param $redirect string
      * @return Response|array
-     * @throws NotFoundHttpException
-     * @throws Throwable
-     * @throws StaleObjectException
      */
-    public function run($id)
+    public function run($id, string $redirect = null)
     {
         if (Yii::$app->request->isAjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;
         }
 
-        if (!$this->findModel($id)->delete()) {
-            Yii::$app->session->setFlash('error',
-                Yii::t('rootlocal/crud', 'Could not delete Entry'));
+        if ($redirect !== null) {
+            $this->redirect = $redirect;
+        }
 
+        if ($this->findModel($id)->delete()) {
+            Yii::$app->session->setFlash('success', Yii::t('rootlocal/crud', 'Entry deleted'));
             return Yii::$app->request->isAjax ? ['success' => true] : $this->controller->redirect($this->redirect);
         }
 
-        Yii::$app->session->setFlash('success', Yii::t('rootlocal/crud', 'Entry deleted'));
-
+        Yii::$app->session->setFlash('error', Yii::t('rootlocal/crud', 'Could not delete Entry'));
         return Yii::$app->request->isAjax ? ['success' => false] : $this->controller->redirect($this->redirect);
     }
 
@@ -100,19 +91,54 @@ class DeleteAction extends Action
      * @param int $id
      * @return ActiveRecord the loaded model
      * @throws NotFoundHttpException if the model cannot be found
+     * @throws ErrorException
      */
     protected function findModel($id)
     {
-        if ($this->_model === null) {
-            $this->_model = $this->model::findOne($id);
+        $model = $this->getModel();
 
-            if ($this->_model === null) {
-                throw new NotFoundHttpException(Yii::t('rootlocal/crud',
-                    'The requested page does not exist.')
-                );
-            }
+        if ($model instanceof Closure) {
+            $objectClass = call_user_func($model, $id);
+        }
+
+        if (is_string($model)) {
+            /**
+             * @var ActiveRecord $model
+             */
+            $objectClass = $model::findOne($id);
+        }
+
+        /**
+         * @var ActiveRecord $objectClass
+         */
+        if ($objectClass === null) {
+            throw new NotFoundHttpException(Yii::t('rootlocal/crud',
+                'The requested page does not exist.'
+            )
+            );
+        }
+
+        return $objectClass;
+    }
+
+    /**
+     * @return string|Closure
+     * @throws ErrorException
+     */
+    public function getModel()
+    {
+        if ($this->_model === null) {
+            throw new ErrorException(Yii::t('rootlocal/crud', 'Model not specified'));
         }
 
         return $this->_model;
+    }
+
+    /**
+     * @param $model
+     */
+    public function setModel($model): void
+    {
+        $this->_model = $model;
     }
 }
