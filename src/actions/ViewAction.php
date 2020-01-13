@@ -12,32 +12,54 @@ use Closure;
 
 /**
  * Class ViewAction
- * @package rootlocal\crud\actions
+ * Displays a single [[ActiveRecord]] model
  *
- * ActiveRecord is the base class for classes representing relational data in terms of objects
+ * examples:
+ *
  * ```php
- * 'model' => function ($id) {
- *      return User::find()->where(['id' => $id])->active()->one();
+ * // lambda function:
+ * public function actions()
+ * {
+ *      'view' => [
+ *          'class' => ViewAction::class,
+ *          'model' => function ($id) {
+ *              return Book::find()->where(['id' => $id])->active()->one();
+ *          }
+ *      ]
+ * }
+ *
+ * // string:
+ * public function actions()
+ * {
+ *      'view' => [
+ *          'class' => ViewAction::class,
+ *          'model' => Book::class
+ *      ]
  * }
  * ```
- * @property string|Closure $model
+ *
+ * @property string|Closure $model ActiveRecord Model
+ *
+ * @author Alexander Zakharov <sys@eml.ru>
+ * @package rootlocal\crud\actions
  */
 class ViewAction extends Action
 {
+    /**
+     * @var string the view name.
+     */
+    public $view = 'view';
+
     /**
      * @var string|Closure
      */
     private $_model;
 
     /**
-     * @var string
-     * the view name.
-     */
-    public $view = 'view';
-
-    /**
-     * @param $id int
-     * @return string
+     * Runs the action.
+     *
+     * @param int $id primary key
+     * @return string response
      */
     public function run($id)
     {
@@ -52,8 +74,10 @@ class ViewAction extends Action
     }
 
     /**
-     * @return Closure|string
-     * @throws ErrorException
+     * Get model
+     *
+     * @return Closure|string|ActiveRecord ActiveRecord Model
+     * @throws ErrorException if Model not specified (not set)
      */
     public function getModel()
     {
@@ -65,7 +89,9 @@ class ViewAction extends Action
     }
 
     /**
-     * @param $model Closure|string
+     * Set model
+     *
+     * @param Closure|string $model ActiveRecord Model
      */
     public function setModel($model): void
     {
@@ -75,30 +101,25 @@ class ViewAction extends Action
     /**
      * Finds the Alias model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
-     * @param int $id
+     *
+     * @param int $id primary key
      * @return ActiveRecord the loaded model
      * @throws NotFoundHttpException if the model cannot be found
-     * @throws ErrorException
      */
     protected function findModel($id): ActiveRecord
     {
         $model = $this->getModel();
+        $objectClass = null;
 
         if ($model instanceof Closure) {
             $objectClass = call_user_func($model, $id);
         } else {
-
-            /**
-             * @var ActiveRecord $model
-             */
             $objectClass = $model::findOne($id);
         }
 
         if ($objectClass === null) {
             throw new NotFoundHttpException(Yii::t('rootlocal/crud',
-                'The requested page does not exist.'
-            )
-            );
+                'The requested page does not exist.'));
         }
 
         return $objectClass;

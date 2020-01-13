@@ -12,48 +12,56 @@ use Closure;
 
 /**
  * Class CreateAction
+ * Creates a new [[ActiveRecord]] model.
+ * If creation is successful, the browser will be [[redirect]] to the 'view' page.
+ *
+ * examples:
+ *
+ * ```php
+ * // lambda function:
+ * public function actions()
+ * {
+ *      'create' => [
+ *          'class' => CreateAction::class,
+ *          'scenario' => Book::SCENARIO_CREATE,
+ *          'model' => function ($scenario) {
+ *              return new Book(['scenario' => $scenario]);
+ *          }
+ *      ]
+ * }
+ *
+ * // string:
+ * public function actions()
+ * {
+ *      'create' => [
+ *          'class' => CreateAction::class,
+ *          'scenario' => Book::SCENARIO_CREATE,
+ *          'model' => Book::class
+ *      ]
+ * }
+ *
+ * // ActiveRecord:
+ * public function actions()
+ * {
+ *      'create' => [
+ *          'class' => CreateAction::class,
+ *          'model' => new Book(['scenario' => $scenario])
+ *      ]
+ * }
+ * ```
+ *
+ * @property string|ActiveRecord|Closure $model ActiveRecord Model
+ * @property string|null $scenario scenario for model. Defaults to [[ActiveRecord::SCENARIO_DEFAULT]]
+ *
+ * @author Alexander Zakharov <sys@eml.ru>
  * @package rootlocal\crud\actions
- *
- * ActiveRecord is the base class for classes representing relational data in terms of objects
- * ```php
- * 'model' => function ($id) {
- *      return User::find()->where(['id' => $id])->active()->one();
- * }
- * ```
- * string:
- * ```php
- * 'model' => User::class
- * }
- * ```
- * ActiveRecord:
- * ```php
- * 'model' => new User()
- * }
- * ```
- * @property string|ActiveRecord|Closure $model
- *
- * The scenario that this model is in. Defaults to [[SCENARIO_DEFAULT]]
- * @property string|null $scenario
  */
 class CreateAction extends Action
 {
     /**
-     * @var ActiveRecord
-     */
-    private $_model;
-
-    /**
-     * @var string
-     * the view name.
+     * @var string the view name.
      */
     public $view = 'create';
-
-    /**
-     * @var string
-     * The Default scenario that this model is in. Defaults to [[SCENARIO_DEFAULT]]
-     */
-    private $_scenario;
-
     /**
      * @var string|array $redirect the URL to be redirected to. This can be in one of the following formats:
      *
@@ -61,18 +69,34 @@ class CreateAction extends Action
      * - a string representing a URL alias (e.g. "@example.com")
      * - an array in the format of `[$route, ...name-value pairs...]` (e.g. `['site/index', 'ref' => 1]`)
      *   [[Url::to()]] will be used to convert the array into a URL.
+     *
+     * Any relative URL that starts with a single forward slash "/" will be converted
+     * into an absolute one by prepending it with the host info of the current request.
+     *
+     * ```php
+     * <?= Html::a('Create', ['create', 'redirect' => 'index'], [
+     * 'class' => 'btn btn-primary btn-sm'
+     * ]) ?>
+     * ```
      */
     public $redirect;
 
     /**
-     * ``` php
-     * <?= Html::a('Create', ['create', 'redirect' => 'index']) ?>
-     * ```
-     * @param $redirect string|null
-     * @return array|string|Response
-     * @throws ErrorException
+     * @var string
      */
-    public function run(string $redirect = null)
+    private $_scenario;
+    /**
+     * @var ActiveRecord
+     */
+    private $_model;
+
+    /**
+     * Runs the action.
+     *
+     * @param string|null $redirect the URL to be redirected to
+     * @return array|string|Response response
+     */
+    public function run($redirect = null)
     {
         if (Yii::$app->request->isAjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;
@@ -115,8 +139,10 @@ class CreateAction extends Action
     }
 
     /**
-     * @return ActiveRecord
-     * @throws ErrorException
+     * Get ActiveRecord model
+     *
+     * @return ActiveRecord ActiveRecord object model
+     * @throws ErrorException if Model not specified (not set)
      */
     public function getModel(): ActiveRecord
     {
@@ -128,8 +154,10 @@ class CreateAction extends Action
     }
 
     /**
-     * @param $model string|ActiveRecord|Closure
-     * @throws InvalidConfigException
+     * Set ActiveRecord model
+     *
+     * @param string|ActiveRecord|Closure $model ActiveRecord model
+     * @throws InvalidConfigException if the configuration is invalid
      */
     public function setModel($model): void
     {
@@ -150,7 +178,9 @@ class CreateAction extends Action
     }
 
     /**
-     * @param $scenario string|null
+     * Set scenario
+     *
+     * @param string|null $scenario scenario for model. Defaults to [[ActiveRecord::SCENARIO_DEFAULT]]
      */
     public function setScenario($scenario): void
     {
@@ -158,7 +188,9 @@ class CreateAction extends Action
     }
 
     /**
-     * @return string|null
+     * Get scenario
+     *
+     * @return string scenario for model. Defaults to [[ActiveRecord::SCENARIO_DEFAULT]]
      */
     public function getScenario()
     {

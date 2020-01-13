@@ -8,49 +8,75 @@ use yii\db\ActiveRecord;
 use yii\web\Response;
 use yii\base\ErrorException;
 use yii\web\NotFoundHttpException;
+use yii\base\InvalidConfigException;
 use yii\web\BadRequestHttpException;
 use yii\bootstrap\ActiveForm;
 use Closure;
 
 /**
  * Class UpdateAction
+ * Validate [[ActiveRecord]] model
+ *
+ * examples:
+ *
+ * ```php
+ * // lambda function:
+ * public function actions()
+ * {
+ *      'validate' => [
+ *          'class' => ValidateAction::class,
+ *          'scenario' => Book::SCENARIO_CREATE,
+ *          'model' => function ($id, $scenario) {
+ *
+ *              if ($id === null) {
+ *                  return new Book(['scenario' => $scenario]);
+ *              }
+ *
+ *              $book = Book::find()->active()->where(['id' => $id])->one();
+ *              if ($book !== null) {
+ *                  $book->scenario = $scenario;
+ *              }
+ *
+ *              return $book;
+ *          }
+ *      ]
+ * }
+ *
+ * // string:
+ * public function actions()
+ * {
+ *      'validate' => [
+ *          'class' => ValidateAction::class,
+ *          'scenario' => Book::SCENARIO_CREATE,
+ *          'model' => Book::class
+ *      ]
+ * }
+ * ```
+ *
+ * @property string|Closure $model ActiveRecord model
+ * @property string|null $scenario scenario for model. Defaults to [[ActiveRecord::SCENARIO_DEFAULT]]
+ *
+ * @author Alexander Zakharov <sys@eml.ru>
  * @package rootlocal\crud\actions
- *
- * ActiveRecord is the base class for classes representing relational data in terms of objects
- * ```php
- * 'model' => function ($id) {
- *      return User::find()->where(['id' => $id])->active()->one();
- * }
- * ```
- * string:
- * ```php
- * 'model' => User::class
- * }
- * ```
- * @property string|Closure $model
- *
- * The scenario that this model is in. Defaults to [[SCENARIO_DEFAULT]]
- * @property string|null $scenario
  */
 class ValidateAction extends Action
 {
     /**
      * @var string|Closure
-     * ActiveRecord is the base class for classes representing relational data in terms of objects
      */
     private $_model;
-
     /**
      * @var string
-     * The Default scenario that this model is in. Defaults to [[SCENARIO_DEFAULT]]
      */
     private $_scenario;
 
     /**
-     * @param null|int $id
-     * @param null|string $scenario
+     * Runs the action.
+     *
+     * @param null|int $id primary key
+     * @param null|string $scenario scenario for model. Defaults to [[ActiveRecord::SCENARIO_DEFAULT]]
      * @return array the error message array indexed by the attribute IDs.
-     * @throws BadRequestHttpException
+     * @throws BadRequestHttpException if Invalid Request
      */
     public function run($id = null, string $scenario = null)
     {
@@ -73,14 +99,16 @@ class ValidateAction extends Action
     /**
      * Finds the Alias model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
-     * @param string|null $id
+     *
+     * @param string|null $id primary key
      * @return ActiveRecord the loaded model
      * @throws NotFoundHttpException if the model cannot be found
-     * @throws ErrorException
+     * @throws InvalidConfigException if the configuration is invalid
      */
     protected function findModel($id = null)
     {
         $model = $this->getModel();
+        $objectClass = null;
 
         // is new record
         if ($id === null) {
@@ -95,9 +123,6 @@ class ValidateAction extends Action
                 $objectClass = call_user_func($model, $id, $this->getScenario());
             }
 
-            /**
-             * @var $objectClass ActiveRecord
-             */
             return $objectClass;
         }
 
@@ -117,9 +142,6 @@ class ValidateAction extends Action
             $objectClass = call_user_func($model, $id, $this->getScenario());
         }
 
-        /**
-         * @var $objectClass ActiveRecord
-         */
         if ($objectClass === null) {
             throw new NotFoundHttpException(Yii::t('rootlocal/crud',
                 'The requested page does not exist.'
@@ -131,8 +153,10 @@ class ValidateAction extends Action
     }
 
     /**
-     * @return string|Closure
-     * @throws ErrorException
+     * Get model
+     *
+     * @return string|Closure|ActiveRecord ActiveRecord model
+     * @throws ErrorException if model not specified (not set)
      */
     public function getModel()
     {
@@ -144,7 +168,9 @@ class ValidateAction extends Action
     }
 
     /**
-     * @param $model string|Closure
+     * Set model
+     *
+     * @param string|Closure $model ActiveRecord model
      */
     public function setModel($model): void
     {
@@ -152,7 +178,9 @@ class ValidateAction extends Action
     }
 
     /**
-     * @param $scenario string|null
+     * Set scenario
+     *
+     * @param string|null $scenario scenario for model. Defaults to [[ActiveRecord::SCENARIO_DEFAULT]]
      */
     public function setScenario($scenario): void
     {
@@ -160,7 +188,9 @@ class ValidateAction extends Action
     }
 
     /**
-     * @return string|null
+     * Get scenario
+     *
+     * @return string scenario for model. Defaults to [[ActiveRecord::SCENARIO_DEFAULT]]
      */
     public function getScenario()
     {

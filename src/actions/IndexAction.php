@@ -13,54 +13,79 @@ use rootlocal\crud\components\SearchModelInterface;
 
 /**
  * Class IndexAction
+ * Lists all [[ActiveRecord]] models.
+ *
+ * examples:
+ *
+ * ```php
+ * // lambda function:
+ * public function actions()
+ * {
+ *      'index' => [
+ *          'class' => IndexAction::class,
+ *          'searchModel' => function () {
+ *              return new BookSearch();
+ *          },
+ *          'dataProvider' => function ($model, $queryParams) {
+ *              $model->query = $model::find()->active();
+ *              return $model->search($queryParams);
+ *          }
+ *      ]
+ * }
+ *
+ * // string:
+ * public function actions()
+ * {
+ *      'index' => [
+ *          'class' => IndexAction::class,
+ *          'searchModel' => BookSearch::class
+ *      ]
+ * }
+ *
+ * // ActiveRecord:
+ * public function actions()
+ * {
+ *      'index' => [
+ *          'class' => IndexAction::class,
+ *          'model' => new BookSearch()
+ *      ]
+ * }
+ * ```
+ * @property Closure|null $dataProvider implements a data provider (instanceof [[Closure]])
+ * @property string|SearchModelInterface|Closure $searchModel ActiveRecord searchModel
+ * @property SearchModelInterface $model Readonly ActiveRecord object instanceof [[SearchModelInterface]]
+ * @property array $queryParams The request GET parameter values.
+ *
+ * @author Alexander Zakharov <sys@eml.ru>
  * @package rootlocal\crud\actions
- *
- *
- * ```php
- * 'dataProvider' => function ($model, $queryParams) {
- *      return $model->search($queryParams);
- * }
- * ```
- * @property Closure|null $dataProvider an anonymous function
- *
- * ```php
- * 'searchModel' => function () {
- *      return new UserSearch();
- * }
- * ```
- * @property string|SearchModelInterface|Closure $searchModel
- *
- * @property array $queryParams
  */
 class IndexAction extends Action
 {
     /**
+     * @var string the view name.
+     */
+    public $view = 'index';
+
+    /**
      * @var string|SearchModelInterface|Closure
      */
     private $_searchModel;
-
     /**
      * @var SearchModelInterface
      */
     private $_model;
-
     /**
      * @var ActiveDataProvider
      */
     private $_dataProvider;
-
-    /**
-     * @var string
-     * the view name.
-     */
-    public $view = 'index';
-
     /**
      * @var array $queryParams The request GET parameter values.
      */
     private $_queryParams;
 
     /**
+     * Runs the action.
+     *
      * @return string
      */
     public function run()
@@ -82,8 +107,10 @@ class IndexAction extends Action
     }
 
     /**
-     * @return Closure|string|SearchModelInterface
-     * @throws ErrorException
+     * Get ActiveRecord searchModel
+     *
+     * @return Closure|string|SearchModelInterface ActiveRecord searchModel
+     * @throws ErrorException if Model not specified (not set)
      */
     public function getSearchModel()
     {
@@ -95,7 +122,9 @@ class IndexAction extends Action
     }
 
     /**
-     * @param $searchModel Closure|string|SearchModelInterface
+     * Set ActiveRecord searchModel
+     *
+     * @param Closure|string|SearchModelInterface $searchModel ActiveRecord searchModel
      */
     public function setSearchModel($searchModel): void
     {
@@ -103,9 +132,11 @@ class IndexAction extends Action
     }
 
     /**
-     * @return SearchModelInterface
-     * @throws ErrorException
-     * @throws InvalidConfigException
+     * Get ActiveRecord searchModel
+     *
+     * @return SearchModelInterface ActiveRecord searchModel object instanceof [[SearchModelInterface]]
+     * @throws ErrorException if searchModel not instanceof [[SearchModelInterface]]
+     * @throws InvalidConfigException if the configuration is invalid
      */
     public function getModel(): SearchModelInterface
     {
@@ -132,7 +163,9 @@ class IndexAction extends Action
     }
 
     /**
-     * @return array
+     * Get The request GET parameter values.
+     *
+     * @return array The request GET parameter values.
      */
     public function getQueryParams()
     {
@@ -142,10 +175,11 @@ class IndexAction extends Action
         return $this->_queryParams;
     }
 
-
     /**
-     * @return ActiveDataProvider
-     * @throws InvalidConfigException
+     * Get DataProvider object
+     *
+     * @return ActiveDataProvider ActiveDataProvider object
+     * @throws InvalidConfigException if dataProvider not instanceof [[ActiveDataProvider]]
      */
     public function getDataProvider(): ActiveDataProvider
     {
@@ -160,7 +194,9 @@ class IndexAction extends Action
     }
 
     /**
-     * @param $dataProvider Closure
+     * Get DataProvider
+     *
+     * @param Closure $dataProvider anonymous function for [[ActiveDataProvider]]
      */
     public function setDataProvider($dataProvider): void
     {

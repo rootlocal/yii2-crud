@@ -7,13 +7,19 @@ use yii\base\Application;
 
 /**
  * Class Bootstrap
+ * Application bootstrap process
+ *
+ * @see \yii\base\BootstrapInterface
+ *
+ * @author Alexander Zakharov <sys@eml.ru>
  * @package rootlocal\crud
  */
 class Bootstrap implements BootstrapInterface
 {
     /**
-     * @{inheritdoc}
-     * @param Application $app
+     * Bootstrap method to be called during application bootstrap stage.
+     *
+     * @param Application $app the application currently running
      */
     public function bootstrap($app)
     {
