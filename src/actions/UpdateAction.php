@@ -12,34 +12,55 @@ use Closure;
 
 /**
  * Class UpdateAction
- * @package rootlocal\crud\actions
+ * Updates an existing [[ActiveRecord]] model.
+ * If update is successful, the browser will be [[redirect]] to the 'view' page.
  *
- * ActiveRecord is the base class for classes representing relational data in terms of objects
+ * examples:
+ *
  * ```php
- * 'model' => function ($id) {
- *      return User::find()->where(['id' => $id])->active()->one();
+ * // lambda function:
+ * public function actions()
+ * {
+ *      'update' => [
+ *          'class' => UpdateAction::class,
+ *          'scenario' => Book::SCENARIO_UPDATE,
+ *          'model' => function ($id, $scenario) {
+ *              $model = Book::find()->where(['id' => $id])->active()->one();
+ *              if($model !== null)
+ *                  $model->scenario = $scenario;
+ *              return $model;
+ *          }
+ *      ]
+ * }
+ *
+ * // string:
+ * public function actions()
+ * {
+ *      'update' => [
+ *          'class' => UpdateAction::class,
+ *          'scenario' => Book::SCENARIO_UPDATE,
+ *          'model' => Book::class
+ *      ]
  * }
  * ```
- * @property string|Closure $model
+ *
+ * @property string|Closure $model ActiveRecord Model
+ * @property string|null $scenario scenario for model. Defaults to [[ActiveRecord::SCENARIO_DEFAULT]]
+ *
+ * @author Alexander Zakharov <sys@eml.ru>
+ * @package rootlocal\crud\actions
  */
 class UpdateAction extends Action
 {
     /**
-     * @var string|Closure
-     */
-    private $_model;
-
-    /**
-     * @var string
-     * the view name.
+     * @var string the view name.
      */
     public $view = 'update';
 
     /**
      * @var string
-     * The scenario that this model is in. Defaults to [[SCENARIO_DEFAULT]]
      */
-    public $scenario;
+    private $_scenario;
 
     /**
      * @var string|array $redirect the URL to be redirected to. This can be in one of the following formats:
@@ -52,16 +73,21 @@ class UpdateAction extends Action
      * Any relative URL that starts with a single forward slash "/" will be converted
      * into an absolute one by prepending it with the host info of the current request.
      *
+     * ```php
      * <?= Html::a('Update', ['update', 'id' => $model->id, 'redirect' => 'index'], [
      * 'class' => 'btn btn-primary btn-sm'
      * ]) ?>
+     * ```
      */
     public $redirect;
 
+    /**
+     * @var string|Closure
+     */
+    private $_model;
 
     /**
-     * {@inheritDoc}
-     * @throws ErrorException
+     * @inheritDoc
      */
     public function init()
     {
@@ -73,8 +99,10 @@ class UpdateAction extends Action
     }
 
     /**
-     * @param $id int
-     * @return array|string
+     * Runs the action.
+     *
+     * @param int $id primary key
+     * @return array|string response
      */
     public function run($id)
     {
@@ -119,38 +147,39 @@ class UpdateAction extends Action
     /**
      * Finds the Alias model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
-     * @param int $id
+     *
+     * @param int $id primary key
      * @return ActiveRecord the loaded model
      * @throws NotFoundHttpException if the model cannot be found
-     * @throws ErrorException
      */
     protected function findModel($id)
     {
         $model = $this->getModel();
+        $objectClass = null;
 
         if ($model instanceof Closure) {
-            $objectClass = call_user_func($model, $id);
+            $objectClass = call_user_func($model, $id, $this->getScenario());
         } else {
-
-            /**
-             * @var ActiveRecord $model
-             */
             $objectClass = $model::findOne($id);
+
+            if ($objectClass !== null) {
+                $objectClass->scenario = $this->getScenario();
+            }
         }
 
         if ($objectClass === null) {
             throw new NotFoundHttpException(Yii::t('rootlocal/crud',
-                'The requested page does not exist.'
-            )
-            );
+                'The requested page does not exist.'));
         }
 
         return $objectClass;
     }
 
     /**
-     * @return string|Closure
-     * @throws ErrorException
+     * Get model
+     *
+     * @return string|Closure|ActiveRecord ActiveRecord Model
+     * @throws ErrorException if Model not specified (not set)
      */
     public function getModel()
     {
@@ -162,10 +191,36 @@ class UpdateAction extends Action
     }
 
     /**
-     * @param $model
+     * Set model
+     *
+     * @param string|Closure $model ActiveRecord Model
      */
     public function setModel($model): void
     {
         $this->_model = $model;
+    }
+
+    /**
+     * Set scenario
+     *
+     * @param string|null $scenario scenario for model. Defaults to [[ActiveRecord::SCENARIO_DEFAULT]]
+     */
+    public function setScenario($scenario): void
+    {
+        $this->_scenario = $scenario;
+    }
+
+    /**
+     * Get scenario
+     *
+     * @return string scenario for model. Defaults to [[ActiveRecord::SCENARIO_DEFAULT]]
+     */
+    public function getScenario()
+    {
+        if ($this->_scenario === null) {
+            $this->_scenario = ActiveRecord::SCENARIO_DEFAULT;
+        }
+
+        return $this->_scenario;
     }
 }

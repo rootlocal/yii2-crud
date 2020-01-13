@@ -11,25 +11,41 @@ use yii\web\NotFoundHttpException;
 use Closure;
 
 /**
- * Class ViewAction
- * @package rootlocal\crud\actions
+ * Class DeleteAction
+ * Deletes an existing [[ActiveRecord]] model.
+ * If deletion is successful, the browser will be [[redirect]] to the 'index' page.
  *
- * ActiveRecord is the base class for classes representing relational data in terms of objects
+ * examples:
+ *
  * ```php
- * 'model' => function ($id) {
- *      return User::find()->where(['id' => $id])->active()->one();
+ * // lambda function:
+ * public function actions()
+ * {
+ *      'delete' => [
+ *          'class' => DeleteAction::class,
+ *          'model' => function ($id) {
+ *              return User::find()->where(['id' => $id])->active()->one();
+ *          }
+ *      ]
+ * }
+ *
+ * // string:
+ * public function actions()
+ * {
+ *      'delete' => [
+ *          'class' => DeleteAction::class,
+ *          'model' => Book::class
+ *      ]
  * }
  * ```
- * @property string|Closure $model
+ *
+ * @property string|Closure $model ActiveRecord Model
+ *
+ * @author Alexander Zakharov <sys@eml.ru>
+ * @package rootlocal\crud\actions
  */
 class DeleteAction extends Action
 {
-    /**
-     * @var ActiveRecord
-     * ActiveRecord is the base class for classes representing relational data in terms of objects
-     */
-    private $_model;
-
     /**
      * @var string|array $redirect the URL to be redirected to. This can be in one of the following formats:
      *
@@ -41,15 +57,22 @@ class DeleteAction extends Action
      * Any relative URL that starts with a single forward slash "/" will be converted
      * into an absolute one by prepending it with the host info of the current request.
      *
+     * ```php
      * <?= Html::a('Delete', ['delete', 'id' => $model->id, 'redirect' => 'index'], [
      * 'class' => 'btn btn-danger btn-sm',
      * 'data' => ['confirm' => 'Are you sure you want to delete this item?', 'method' => 'POST']
      * ]) ?>
+     * ```
      */
     public $redirect;
 
     /**
-     * {@inheritDoc}
+     * @var string|Closure ActiveRecord Model
+     */
+    private $_model;
+
+    /**
+     * @inheritdoc
      */
     public function init()
     {
@@ -62,11 +85,13 @@ class DeleteAction extends Action
     }
 
     /**
-     * @param $id int
-     * @param $redirect string
-     * @return Response|array
+     * Runs the action.
+     *
+     * @param int $id primary key
+     * @param string|null $redirect the URL to be redirected to
+     * @return array|Response response
      */
-    public function run($id, string $redirect = null)
+    public function run($id, $redirect = null)
     {
         if (Yii::$app->request->isAjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;
@@ -88,29 +113,27 @@ class DeleteAction extends Action
     /**
      * Finds the Alias model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
-     * @param int $id
+     *
+     * @param int $id primary key
      * @return ActiveRecord the loaded model
      * @throws NotFoundHttpException if the model cannot be found
-     * @throws ErrorException
      */
     protected function findModel($id)
     {
+        /** @var ActiveRecord $model */
+
         $model = $this->getModel();
+        $objectClass = null;
 
         if ($model instanceof Closure) {
             $objectClass = call_user_func($model, $id);
         }
 
         if (is_string($model)) {
-            /**
-             * @var ActiveRecord $model
-             */
+
             $objectClass = $model::findOne($id);
         }
 
-        /**
-         * @var ActiveRecord $objectClass
-         */
         if ($objectClass === null) {
             throw new NotFoundHttpException(Yii::t('rootlocal/crud',
                 'The requested page does not exist.'
@@ -122,8 +145,10 @@ class DeleteAction extends Action
     }
 
     /**
-     * @return string|Closure
-     * @throws ErrorException
+     * Get ActiveRecord model
+     *
+     * @return string|Closure|ActiveRecord ActiveRecord model
+     * @throws ErrorException if Model not specified (not set)
      */
     public function getModel()
     {
@@ -135,7 +160,9 @@ class DeleteAction extends Action
     }
 
     /**
-     * @param $model
+     * Set ActiveRecord model
+     *
+     * @param string|Closure $model ActiveRecord model
      */
     public function setModel($model): void
     {
