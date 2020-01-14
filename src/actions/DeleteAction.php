@@ -52,13 +52,13 @@ class DeleteAction extends Action
      * - a string representing a URL (e.g. "http://example.com")
      * - a string representing a URL alias (e.g. "@example.com")
      * - an array in the format of `[$route, ...name-value pairs...]` (e.g. `['site/index', 'ref' => 1]`)
-     *   [[Url::to()]] will be used to convert the array into a URL.
+     *   [[\yii\helpers\Url::to()]] will be used to convert the array into a URL.
      *
      * Any relative URL that starts with a single forward slash "/" will be converted
      * into an absolute one by prepending it with the host info of the current request.
      *
      * ```php
-     * <?= Html::a('Delete', ['delete', 'id' => $model->id, 'redirect' => 'index'], [
+     * <?= \yii\helpers\Html::a('Delete', ['delete', 'id' => $model->id, 'redirect' => 'index'], [
      * 'class' => 'btn btn-danger btn-sm',
      * 'data' => ['confirm' => 'Are you sure you want to delete this item?', 'method' => 'POST']
      * ]) ?>
@@ -70,6 +70,7 @@ class DeleteAction extends Action
      * @var string|Closure ActiveRecord Model
      */
     private $_model;
+
 
     /**
      * @inheritdoc
@@ -152,7 +153,7 @@ class DeleteAction extends Action
      */
     public function getModel()
     {
-        if ($this->_model === null) {
+        if (empty($this->_model)) {
             throw new ErrorException(Yii::t('rootlocal/crud', 'Model not specified'));
         }
 

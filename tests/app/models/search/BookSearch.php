@@ -10,9 +10,11 @@ use rootlocal\crud\components\SearchModelInterface;
 
 /**
  * Class BookSearch
- * @package rootlocal\crud\test\app\models
  *
  * @property BookQuery $query
+ *
+ * @author Alexander Zakharov <sys@eml.ru>
+ * @package rootlocal\crud\test\app\models
  */
 class BookSearch extends Book implements SearchModelInterface
 {
@@ -62,8 +64,10 @@ class BookSearch extends Book implements SearchModelInterface
     }
 
     /**
+     * {@inheritdoc}
+     *
      * Creates data provider instance with search query applied
-     * @param array $params
+     * @param array $params The request GET parameter values.
      * @return ActiveDataProvider
      */
     public function search($params = [])

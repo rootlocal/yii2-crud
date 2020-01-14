@@ -55,6 +55,7 @@ class ViewAction extends Action
      */
     private $_model;
 
+
     /**
      * Runs the action.
      *
@@ -81,7 +82,7 @@ class ViewAction extends Action
      */
     public function getModel()
     {
-        if ($this->_model === null) {
+        if (empty($this->_model)) {
             throw new ErrorException(Yii::t('rootlocal/crud', 'Model not specified'));
         }
 

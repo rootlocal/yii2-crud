@@ -13,7 +13,7 @@ use rootlocal\crud\components\SearchModelInterface;
 
 /**
  * Class IndexAction
- * Lists all [[ActiveRecord]] models.
+ * Lists all [[SearchModelInterface]] models.
  *
  * examples:
  *
@@ -83,6 +83,7 @@ class IndexAction extends Action
      */
     private $_queryParams;
 
+
     /**
      * Runs the action.
      *
@@ -114,7 +115,7 @@ class IndexAction extends Action
      */
     public function getSearchModel()
     {
-        if ($this->_searchModel === null) {
+        if (empty($this->_searchModel)) {
             throw new ErrorException(Yii::t('rootlocal/crud', 'No search model specified'));
         }
 
@@ -169,8 +170,9 @@ class IndexAction extends Action
      */
     public function getQueryParams()
     {
-        if ($this->_queryParams === null)
+        if ($this->_queryParams === null) {
             $this->_queryParams = Yii::$app->request->getQueryParams();
+        }
 
         return $this->_queryParams;
     }

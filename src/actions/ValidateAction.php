@@ -70,6 +70,7 @@ class ValidateAction extends Action
      */
     private $_scenario;
 
+
     /**
      * Runs the action.
      *

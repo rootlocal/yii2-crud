@@ -68,13 +68,13 @@ class CreateAction extends Action
      * - a string representing a URL (e.g. "http://example.com")
      * - a string representing a URL alias (e.g. "@example.com")
      * - an array in the format of `[$route, ...name-value pairs...]` (e.g. `['site/index', 'ref' => 1]`)
-     *   [[Url::to()]] will be used to convert the array into a URL.
+     *   [[\yii\helpers\Url::to()]] will be used to convert the array into a URL.
      *
      * Any relative URL that starts with a single forward slash "/" will be converted
      * into an absolute one by prepending it with the host info of the current request.
      *
      * ```php
-     * <?= Html::a('Create', ['create', 'redirect' => 'index'], [
+     * <?= \yii\helpers\Html::a('Create', ['create', 'redirect' => 'index'], [
      * 'class' => 'btn btn-primary btn-sm'
      * ]) ?>
      * ```
@@ -89,6 +89,7 @@ class CreateAction extends Action
      * @var ActiveRecord
      */
     private $_model;
+
 
     /**
      * Runs the action.
@@ -146,7 +147,7 @@ class CreateAction extends Action
      */
     public function getModel(): ActiveRecord
     {
-        if ($this->_model === null) {
+        if (empty($this->_model)) {
             throw new ErrorException(Yii::t('rootlocal/crud', 'Model not specified'));
         }
 
