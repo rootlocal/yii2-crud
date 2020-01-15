@@ -42,4 +42,14 @@ class SiteController extends Controller
         return $this->render('about');
     }
 
+    /**
+     * Displays login page.
+     * @return mixed
+     */
+    public function actionLogin()
+    {
+        return $this->render('login');
+    }
+
+
 }

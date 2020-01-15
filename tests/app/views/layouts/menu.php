@@ -22,6 +22,7 @@ $menuItems = [
     ['label' => 'Home', 'url' => ['/site/index']],
     ['label' => 'About', 'url' => ['/site/about']],
     ['label' => 'Books', 'url' => ['/book/index']],
+    ['label' => 'CRUD test controller', 'url' => ['/crud/index']],
 ];
 
 echo Nav::widget([
