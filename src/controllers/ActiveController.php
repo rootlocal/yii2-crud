@@ -184,4 +184,13 @@ class ActiveController extends Controller
     {
     }
 
+    /**
+     * {@inheritdoc}
+     * @return array
+     */
+    public function accessControl()
+    {
+        return parent::accessControl();
+    }
+
 }

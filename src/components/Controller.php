@@ -5,6 +5,7 @@ namespace rootlocal\crud\components;
 use Yii;
 use yii\base\Model;
 use yii\filters\VerbFilter;
+use yii\filters\AccessControl;
 use yii\base\ErrorException;
 
 /**
@@ -95,13 +96,23 @@ class Controller extends \yii\web\Controller
      */
     public function behaviors()
     {
-        parent::behaviors();
-        return [
-            'verbFilter' => [
+        $behaviors = parent::behaviors();
+
+        if (!empty($this->verbs())) {
+            $behaviors['verbFilter'] = [
                 'class' => VerbFilter::class,
                 'actions' => $this->verbs(),
-            ],
-        ];
+            ];
+        }
+
+        if (!empty($this->accessControl())) {
+            $behaviors['accessFilter'] = [
+                'class' => AccessControl::class,
+                'rules' => $this->accessControl(),
+            ];
+        }
+
+        return $behaviors;
     }
 
     /**
@@ -126,6 +137,37 @@ class Controller extends \yii\web\Controller
      * @return array the allowed HTTP verbs.
      */
     protected function verbs()
+    {
+        return [];
+    }
+
+    /**
+     * list of access rule objects or configuration arrays for creating the rule objects.
+     * If a rule is specified via a configuration array, it will be merged with [[ruleConfig]] first
+     * before it is used for creating the rule object.
+     *
+     * Example:
+     *
+     * ```php
+     * public function accessControl()
+     * {
+     * return [[
+     *      'actions' => [
+     *          'index',
+     *          'view',
+     *          'create',
+     *          'update',
+     *          'delete',
+     *      ],
+     *      'allow' => true,
+     *      'roles' => ['@']]];
+     * }
+     * ```
+     *
+     * @see \yii\filters\AccessRule
+     * @return array
+     */
+    protected function accessControl()
     {
         return [];
     }
