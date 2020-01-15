@@ -50,7 +50,7 @@ use Closure;
  * }
  * ```
  *
- * @property string|ActiveRecord|Closure $model ActiveRecord Model
+ * @property string|ActiveRecord|Closure|array $model ActiveRecord Model
  * @property string|null $scenario scenario for model. Defaults to [[ActiveRecord::SCENARIO_DEFAULT]]
  *
  * @author Alexander Zakharov <sys@eml.ru>
@@ -157,7 +157,7 @@ class CreateAction extends Action
     /**
      * Set ActiveRecord model
      *
-     * @param string|ActiveRecord|Closure $model ActiveRecord model
+     * @param string|ActiveRecord|Closure|array $model ActiveRecord model
      * @throws InvalidConfigException if the configuration is invalid
      */
     public function setModel($model): void
@@ -172,9 +172,13 @@ class CreateAction extends Action
                 $this->_model = $model;
             }
 
-            if ($model instanceof Closure) {
+            if ($model instanceof Closure || is_array($model)) {
                 $this->_model = call_user_func($model, $this->getScenario());
             }
+        }
+
+        if ($this->checkAccess && ($this->checkAccess instanceof Closure || is_array($this->checkAccess))) {
+            call_user_func($this->checkAccess, $this->id, $this->_model);
         }
     }
 

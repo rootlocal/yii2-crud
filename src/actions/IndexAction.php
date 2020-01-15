@@ -13,7 +13,7 @@ use rootlocal\crud\components\SearchModelInterface;
 
 /**
  * Class IndexAction
- * Lists all [[SearchModelInterface]] models.
+ * Lists all SearchModelInterface models.
  *
  * examples:
  *
@@ -91,7 +91,7 @@ class IndexAction extends Action
      */
     public function run()
     {
-        $request = Yii::$app->request;
+        $request = Yii::$app->getRequest();
 
         if ($request->isAjax || $request->isPjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;
@@ -110,7 +110,7 @@ class IndexAction extends Action
     /**
      * Get ActiveRecord searchModel
      *
-     * @return Closure|string|SearchModelInterface ActiveRecord searchModel
+     * @return Closure|string|SearchModelInterface|array ActiveRecord searchModel
      * @throws ErrorException if Model not specified (not set)
      */
     public function getSearchModel()
@@ -125,7 +125,7 @@ class IndexAction extends Action
     /**
      * Set ActiveRecord searchModel
      *
-     * @param Closure|string|SearchModelInterface $searchModel ActiveRecord searchModel
+     * @param Closure|string|SearchModelInterface|array $searchModel ActiveRecord searchModel
      */
     public function setSearchModel($searchModel): void
     {
@@ -147,7 +147,7 @@ class IndexAction extends Action
                 $this->_model = Yii::createObject(['class' => $this->getSearchModel()]);
             }
 
-            if ($this->getSearchModel() instanceof Closure) {
+            if ($this->getSearchModel() instanceof Closure || is_array($this->getSearchModel())) {
                 $this->_model = call_user_func($this->getSearchModel());
             }
 
@@ -157,6 +157,11 @@ class IndexAction extends Action
         }
 
         if ($this->_model instanceof SearchModelInterface) {
+
+            if ($this->checkAccess && ($this->checkAccess instanceof Closure || is_array($this->checkAccess))) {
+                call_user_func($this->checkAccess, $this->id, $this->_model);
+            }
+
             return $this->_model;
         }
 
@@ -171,7 +176,14 @@ class IndexAction extends Action
     public function getQueryParams()
     {
         if ($this->_queryParams === null) {
-            $this->_queryParams = Yii::$app->request->getQueryParams();
+
+            $queryParams = Yii::$app->getRequest()->getQueryParams();
+
+            if (empty($queryParams)) {
+                $queryParams = Yii::$app->getRequest()->getBodyParams();
+            }
+
+            $this->_queryParams = $queryParams;
         }
 
         return $this->_queryParams;
@@ -202,7 +214,7 @@ class IndexAction extends Action
      */
     public function setDataProvider($dataProvider): void
     {
-        if ($dataProvider instanceof Closure) {
+        if ($dataProvider instanceof Closure || is_array($dataProvider)) {
             $this->_dataProvider = call_user_func($dataProvider, $this->getModel(), $this->getQueryParams());
         }
     }

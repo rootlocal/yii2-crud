@@ -121,18 +121,20 @@ class DeleteAction extends Action
      */
     protected function findModel($id)
     {
-        /** @var ActiveRecord $model */
-
         $model = $this->getModel();
         $objectClass = null;
 
-        if ($model instanceof Closure) {
+        if ($model instanceof Closure || is_array($model)) {
             $objectClass = call_user_func($model, $id);
         }
 
         if (is_string($model)) {
-
+            /** @var ActiveRecord $model */
             $objectClass = $model::findOne($id);
+        }
+
+        if ($this->checkAccess && ($this->checkAccess instanceof Closure || is_array($this->checkAccess))) {
+            call_user_func($this->checkAccess, $this->id, $objectClass);
         }
 
         if ($objectClass === null) {
@@ -148,7 +150,7 @@ class DeleteAction extends Action
     /**
      * Get ActiveRecord model
      *
-     * @return string|Closure|ActiveRecord ActiveRecord model
+     * @return string|Closure|array ActiveRecord model
      * @throws ErrorException if Model not specified (not set)
      */
     public function getModel()
@@ -163,7 +165,7 @@ class DeleteAction extends Action
     /**
      * Set ActiveRecord model
      *
-     * @param string|Closure $model ActiveRecord model
+     * @param string|Closure|array $model ActiveRecord model
      */
     public function setModel($model): void
     {

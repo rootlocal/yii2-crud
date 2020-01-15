@@ -77,7 +77,7 @@ class ViewAction extends Action
     /**
      * Get model
      *
-     * @return Closure|string|ActiveRecord ActiveRecord Model
+     * @return Closure|string|array ActiveRecord Model
      * @throws ErrorException if Model not specified (not set)
      */
     public function getModel()
@@ -92,7 +92,7 @@ class ViewAction extends Action
     /**
      * Set model
      *
-     * @param Closure|string $model ActiveRecord Model
+     * @param Closure|string|array $model ActiveRecord Model
      */
     public function setModel($model): void
     {
@@ -112,10 +112,15 @@ class ViewAction extends Action
         $model = $this->getModel();
         $objectClass = null;
 
-        if ($model instanceof Closure) {
+        if ($model instanceof Closure || is_array($model)) {
             $objectClass = call_user_func($model, $id);
         } else {
+            /** @var ActiveRecord $model $objectClass */
             $objectClass = $model::findOne($id);
+        }
+
+        if ($this->checkAccess && ($this->checkAccess instanceof Closure || is_array($this->checkAccess))) {
+            call_user_func($this->checkAccess, $this->id, $objectClass);
         }
 
         if ($objectClass === null) {

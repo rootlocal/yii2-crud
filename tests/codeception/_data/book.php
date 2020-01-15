@@ -24,4 +24,16 @@ return [
         'created_at' => '1548675330',
         'updated_at' => '1548675330',
     ],
+    [
+        'name' => 'checkAccessAllow',
+        'status' => '10',
+        'created_at' => '1548675330',
+        'updated_at' => '1548675330',
+    ],
+    [
+        'name' => 'checkAccessForbidden',
+        'status' => '10',
+        'created_at' => '1548675330',
+        'updated_at' => '1548675330',
+    ],
 ];
