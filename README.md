@@ -22,6 +22,31 @@ to the require section of your composer.json.
 
 #### Standard Controller:
 ```php
+
+<?php
+
+namespace rootlocal\crud\test\app\controllers;
+
+use rootlocal\crud\test\app\models\db\Book;
+use rootlocal\crud\test\app\models\search\BookSearch;
+use rootlocal\crud\controllers\ActiveController;
+
+/**
+ * Class CrudController
+ * @package rootlocal\crud\test\app\controllers
+ */
+class CrudController extends ActiveController
+{
+    /** @var string */
+    public $modelClass = Book::class;
+    /** @var string */
+    public $modelSearchClass = BookSearch::class;
+}
+```
+
+OR
+
+```php
 <?php
 
 use rootlocal\crud\test\app\models\db\Book;

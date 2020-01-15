@@ -4,8 +4,8 @@ namespace rootlocal\crud\test\app\models\db;
 
 use rootlocal\crud\test\app\models\query\BookQuery;
 use yii\behaviors\TimestampBehavior;
-use yii\db\ActiveRecord;
 use yii\helpers\Url;
+use yii\db\ActiveRecord;
 
 /**
  * Class Book model
@@ -25,18 +25,9 @@ class Book extends ActiveRecord
     public const STATUS_DELETED = 0;
     public const STATUS_INACTIVE = 9;
     public const STATUS_ACTIVE = 10;
-
     public const SCENARIO_CREATE = 'create';
     public const SCENARIO_UPDATE = 'update';
 
-    /**
-     * @return object
-     */
-    /*public static function getDb()
-    {
-        return Yii::$app->get('db');
-        //return parent::getDb();
-    }*/
 
     /**
      * {@inheritdoc}

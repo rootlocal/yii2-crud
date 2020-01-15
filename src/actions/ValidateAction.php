@@ -61,13 +61,9 @@ use Closure;
  */
 class ValidateAction extends Action
 {
-    /**
-     * @var string|Closure
-     */
+    /** @var string|Closure */
     private $_model;
-    /**
-     * @var string
-     */
+    /** @var string */
     private $_scenario;
 
 
@@ -120,7 +116,7 @@ class ValidateAction extends Action
                 $objectClass = Yii::createObject($objectConfig);
             }
 
-            if ($model instanceof Closure) {
+            if ($model instanceof Closure || is_array($model)) {
                 $objectClass = call_user_func($model, $id, $this->getScenario());
             }
 
@@ -139,8 +135,12 @@ class ValidateAction extends Action
             }
         }
 
-        if ($model instanceof Closure) {
+        if ($model instanceof Closure || is_array($model)) {
             $objectClass = call_user_func($model, $id, $this->getScenario());
+        }
+
+        if ($this->checkAccess && ($this->checkAccess instanceof Closure || is_array($this->checkAccess))) {
+            call_user_func($this->checkAccess, $this->id, $objectClass);
         }
 
         if ($objectClass === null) {
@@ -156,7 +156,7 @@ class ValidateAction extends Action
     /**
      * Get model
      *
-     * @return string|Closure|ActiveRecord ActiveRecord model
+     * @return string|Closure|array ActiveRecord model
      * @throws ErrorException if model not specified (not set)
      */
     public function getModel()
@@ -171,7 +171,7 @@ class ValidateAction extends Action
     /**
      * Set model
      *
-     * @param string|Closure $model ActiveRecord model
+     * @param string|Closure|array $model ActiveRecord model
      */
     public function setModel($model): void
     {

@@ -158,14 +158,19 @@ class UpdateAction extends Action
         $model = $this->getModel();
         $objectClass = null;
 
-        if ($model instanceof Closure) {
+        if ($model instanceof Closure || is_array($model)) {
             $objectClass = call_user_func($model, $id, $this->getScenario());
         } else {
+            /** @var ActiveRecord $model $objectClass */
             $objectClass = $model::findOne($id);
 
             if ($objectClass !== null) {
                 $objectClass->scenario = $this->getScenario();
             }
+        }
+
+        if ($this->checkAccess && ($this->checkAccess instanceof Closure || is_array($this->checkAccess))) {
+            call_user_func($this->checkAccess, $this->id, $objectClass);
         }
 
         if ($objectClass === null) {
@@ -179,7 +184,7 @@ class UpdateAction extends Action
     /**
      * Get model
      *
-     * @return string|Closure|ActiveRecord ActiveRecord Model
+     * @return string|Closure|array ActiveRecord Model
      * @throws ErrorException if Model not specified (not set)
      */
     public function getModel()
@@ -194,7 +199,7 @@ class UpdateAction extends Action
     /**
      * Set model
      *
-     * @param string|Closure $model ActiveRecord Model
+     * @param string|Closure|array $model ActiveRecord Model
      */
     public function setModel($model): void
     {
