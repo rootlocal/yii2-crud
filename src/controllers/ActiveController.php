@@ -15,8 +15,8 @@ use yii\data\ActiveDataProvider;
 /**
  * Base CRUD Controller
  *
- * The class of the ActiveRecord should be specified via [[modelClass]], which must implement [[\yii\db\ActiveRecordInterface]].
- * By default, the following actions are supported:
+ * The class of the ActiveRecord should be specified via [[modelClass]], [[modelSearchClass]]
+ * which must implement [[\yii\db\ActiveRecordInterface]]. By default, the following actions are supported:
  *
  * - `index`: list of models
  * - `view`: return the details of a model
@@ -46,6 +46,9 @@ use yii\data\ActiveDataProvider;
  * You should usually override [[checkAccess()]] to check whether the current user has the privilege to perform
  * the specified action against the specified model.
  *
+ * @property string $modelClass string model class name
+ * @property string $modelSearchClass string search model name
+ *
  * @author Alexander Zakharov <sys@eml.ru>
  * @since 1.0.6
  * @package rootlocal\crud\controllers
@@ -53,6 +56,8 @@ use yii\data\ActiveDataProvider;
 class ActiveController extends Controller
 {
     /**
+     * {@inheritdoc}
+     *
      * @return array
      */
     public function verbs()
@@ -68,6 +73,8 @@ class ActiveController extends Controller
     }
 
     /**
+     * Declares external actions for the controller
+     *
      * {@inheritdoc}
      *
      * Examples:
@@ -90,6 +97,7 @@ class ActiveController extends Controller
      */
     public function actions()
     {
+        parent::actions();
         return [
             'index' => [
                 'class' => IndexAction::class,
@@ -134,9 +142,14 @@ class ActiveController extends Controller
     }
 
     /**
-     * @param SearchModelInterface $model
-     * @param array $queryParams
-     * @return ActiveDataProvider
+     * Creates data provider instance with search query applied
+     *
+     * @param SearchModelInterface $model ActiveRecord searchModel
+     * @param array $queryParams The request GET parameter values.
+     * @return ActiveDataProvider ActiveDataProvider object
+     *
+     * @see SearchModelInterface::search()
+     * @see ActiveDataProvider
      */
     public function getDataProvider($model, $queryParams = []): ActiveDataProvider
     {
