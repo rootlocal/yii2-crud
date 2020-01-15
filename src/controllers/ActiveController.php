@@ -26,6 +26,19 @@ use yii\data\ActiveDataProvider;
  * - `delete`: delete an existing model
  * - `validate`: validate model
  *
+ * Example:
+ *
+ * ```php
+ * use rootlocal\crud\test\app\models\db\Book;
+ * use rootlocal\crud\test\app\models\search\BookSearch;
+ *
+ * class CrudController extends ActiveController
+ * {
+ *      public $modelClass = Book::class;
+ *      public $modelSearchClass = BookSearch::class;
+ * }
+ * ```
+ *
  * You may disable some of these actions by overriding [[actions()]] and unsetting the corresponding actions.
  *
  * To add a new action, either override [[actions()]] by appending a new action class or write a new action method.
@@ -147,7 +160,7 @@ class ActiveController extends Controller
      * Example:
      *
      * ```php
-     * public function checkAccess($action, $model = null, $params = [])
+     * public function checkAccess($action, $model = null)
      * {
      *      if ($action === 'update' || $action === 'delete') {
      *          if ($model->author_id !== \Yii::$app->user->id){
