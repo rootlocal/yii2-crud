@@ -33,9 +33,9 @@ use yii\data\ActiveDataProvider;
  */
 interface SearchModelInterface
 {
-
     /**
      * Creates data provider instance with search query applied
+     *
      * @param array $params The request GET parameter values.
      * @return ActiveDataProvider ActiveDataProvider implements a data provider based on [[\yii\db\Query]] and [[\yii\db\ActiveQuery]].
      */

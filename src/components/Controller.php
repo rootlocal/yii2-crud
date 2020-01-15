@@ -2,11 +2,16 @@
 
 namespace rootlocal\crud\components;
 
+use Yii;
 use yii\base\Model;
 use yii\filters\VerbFilter;
+use yii\base\ErrorException;
 
 /**
  * Class Controller
+ *
+ * @property string $modelClass string model class name
+ * @property string $modelSearchClass string search model name
  *
  * @author Alexander Zakharov <sys@eml.ru>
  * @since 1.0.6
@@ -14,10 +19,6 @@ use yii\filters\VerbFilter;
  */
 class Controller extends \yii\web\Controller
 {
-    /** @var string model class name */
-    public $modelClass;
-    /** @var string search model name */
-    public $modelSearchClass;
     /**
      * @var string the scenario used for updating a model.
      * @see \yii\base\Model::scenarios()
@@ -29,11 +30,72 @@ class Controller extends \yii\web\Controller
      */
     public $createScenario = Model::SCENARIO_DEFAULT;
 
+    /** @var string model class name */
+    private $_modelClass;
+    /** @var string search model name */
+    private $_modelSearchClass;
+
+
     /**
+     * Get modelClass
+     *
+     * @return string string model class name
+     * @throws ErrorException if Model not specified (not set)
+     */
+    public function getModelClass()
+    {
+        if (empty($this->_modelClass)) {
+            throw new ErrorException(Yii::t('rootlocal/crud', 'Model not specified'));
+        }
+
+        return $this->_modelClass;
+    }
+
+    /**
+     * Set modelClass
+     *
+     * @param string $modelClass string model class name
+     */
+    public function setModelClass($modelClass)
+    {
+        $this->_modelClass = $modelClass;
+    }
+
+    /**
+     * Get modelSearchClass
+     *
+     * @return string string search model name
+     * @throws ErrorException if Model not specified (not set)
+     */
+    public function getModelSearchClass()
+    {
+        if (empty($this->_modelSearchClass)) {
+            throw new ErrorException(Yii::t('rootlocal/crud', 'No search model specified'));
+        }
+
+        return $this->_modelSearchClass;
+    }
+
+    /**
+     * Set modelSearchClass
+     *
+     * @param string $modelSearchClass string search model name
+     */
+    public function setModelSearchClass($modelSearchClass)
+    {
+        $this->_modelSearchClass = $modelSearchClass;
+    }
+
+    /**
+     * Returns a list of behaviors that this component should behave as.
+     *
      * {@inheritdoc}
+     *
+     * @return array
      */
     public function behaviors()
     {
+        parent::behaviors();
         return [
             'verbFilter' => [
                 'class' => VerbFilter::class,
@@ -44,7 +106,7 @@ class Controller extends \yii\web\Controller
 
     /**
      * Declares the allowed HTTP verbs.
-     * Please refer to [[VerbFilter::actions]] on how to declare the allowed verbs.
+     * Please refer to [[\yii\filters\VerbFilter::actions]] on how to declare the allowed verbs.
      *
      * Example:
      *
