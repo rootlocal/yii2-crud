@@ -3,7 +3,6 @@
 namespace rootlocal\crud\controllers;
 
 use rootlocal\crud\components\SearchModelInterface;
-use yii\filters\VerbFilter;
 use rootlocal\crud\components\Controller;
 use rootlocal\crud\actions\CreateAction;
 use rootlocal\crud\actions\DeleteAction;
@@ -41,24 +40,17 @@ use yii\data\ActiveDataProvider;
 class ActiveController extends Controller
 {
     /**
-     * {@inheritdoc}
-     *
      * @return array
      */
-    public function behaviors()
+    public function verbs()
     {
         return [
-            'verbs' => [
-                'class' => VerbFilter::class,
-                'actions' => [
-                    'index' => ['GET'],
-                    'view' => ['GET'],
-                    'create' => ['GET', 'POST'],
-                    'update' => ['GET', 'PUT', 'POST'],
-                    'delete' => ['POST', 'DELETE'],
-                    'validate' => ['POST'],
-                ],
-            ],
+            'index' => ['GET'],
+            'view' => ['GET'],
+            'create' => ['GET', 'POST'],
+            'update' => ['GET', 'PUT', 'POST'],
+            'delete' => ['POST', 'DELETE'],
+            'validate' => ['POST'],
         ];
     }
 
@@ -67,6 +59,7 @@ class ActiveController extends Controller
      *
      * Examples:
      *
+     * ```php
      * public function actions()
      * {
      *      $actions = parent::actions();
@@ -142,7 +135,7 @@ class ActiveController extends Controller
      *
      * This method should be overridden to check whether the current user has the privilege
      * to run the specified action against the specified data model.
-     * If the user does not have access, a [[ForbiddenHttpException]] should be thrown.
+     * If the user does not have access, a [[\yii\web\ForbiddenHttpException]] should be thrown.
      *
      * Example:
      *
