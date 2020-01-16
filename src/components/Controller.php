@@ -143,7 +143,7 @@ class Controller extends \yii\web\Controller
 
     /**
      * list of access rule objects or configuration arrays for creating the rule objects.
-     * If a rule is specified via a configuration array, it will be merged with [[ruleConfig]] first
+     * If a rule is specified via a configuration array, it will be merged with [[\yii\filters\AccessRule]] first
      * before it is used for creating the rule object.
      *
      * Example:
