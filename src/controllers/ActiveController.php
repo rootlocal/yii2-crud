@@ -28,6 +28,8 @@ use yii\data\ActiveDataProvider;
  * Example:
  *
  * ```php
+ * namespace rootlocal\crud\test\app\models\controllers;
+ *
  * use rootlocal\crud\test\app\models\db\Book;
  * use rootlocal\crud\test\app\models\search\BookSearch;
  *
@@ -35,6 +37,8 @@ use yii\data\ActiveDataProvider;
  * {
  *      public $modelClass = Book::class;
  *      public $modelSearchClass = BookSearch::class;
+ *      public $updateScenario = Book::SCENARIO_DEFAULT;
+ *      public $createScenario = Book::SCENARIO_DEFAULT;
  * }
  * ```
  *
