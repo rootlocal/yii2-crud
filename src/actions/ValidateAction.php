@@ -186,11 +186,6 @@ class ValidateAction extends Action
     public function setScenario($scenario): void
     {
         $this->_scenario = $scenario;
-        $model = $this->getModel();
-
-        if ($model !== null) {
-            $model->setScenario($scenario);
-        }
     }
 
     /**
