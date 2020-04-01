@@ -2,6 +2,7 @@
 
 namespace rootlocal\crud\controllers;
 
+use yii\helpers\ArrayHelper;
 use rootlocal\crud\components\SearchModelInterface;
 use rootlocal\crud\components\Controller;
 use rootlocal\crud\actions\CreateAction;
@@ -59,6 +60,10 @@ use yii\data\ActiveDataProvider;
  */
 class ActiveController extends Controller
 {
+    /** @var array */
+    private $_actions = [];
+
+
     /**
      * {@inheritdoc}
      *
@@ -101,48 +106,53 @@ class ActiveController extends Controller
      */
     public function actions()
     {
-        parent::actions();
-        return [
-            'index' => [
-                'class' => IndexAction::class,
-                'searchModel' => $this->modelSearchClass,
-                'checkAccess' => [$this, 'checkAccess'],
-                'dataProvider' => [$this, 'getDataProvider'],
-            ],
+        if (empty($this->_actions)) {
+            $actions = [
+                'index' => [
+                    'class' => IndexAction::class,
+                    'searchModel' => $this->modelSearchClass,
+                    'checkAccess' => [$this, 'checkAccess'],
+                    'dataProvider' => [$this, 'getDataProvider'],
+                ],
 
-            'view' => [
-                'class' => ViewAction::class,
-                'model' => $this->modelClass,
-                'checkAccess' => [$this, 'checkAccess'],
-            ],
+                'view' => [
+                    'class' => ViewAction::class,
+                    'model' => $this->modelClass,
+                    'checkAccess' => [$this, 'checkAccess'],
+                ],
 
-            'validate' => [
-                'class' => ValidateAction::class,
-                'model' => $this->modelClass,
-                'scenario' => $this->createScenario,
-                'checkAccess' => [$this, 'checkAccess'],
-            ],
+                'validate' => [
+                    'class' => ValidateAction::class,
+                    'model' => $this->modelClass,
+                    'scenario' => $this->createScenario,
+                    'checkAccess' => [$this, 'checkAccess'],
+                ],
 
-            'create' => [
-                'class' => CreateAction::class,
-                'model' => $this->modelClass,
-                'scenario' => $this->createScenario,
-                'checkAccess' => [$this, 'checkAccess'],
-            ],
+                'create' => [
+                    'class' => CreateAction::class,
+                    'model' => $this->modelClass,
+                    'scenario' => $this->createScenario,
+                    'checkAccess' => [$this, 'checkAccess'],
+                ],
 
-            'update' => [
-                'class' => UpdateAction::class,
-                'model' => $this->modelClass,
-                'scenario' => $this->updateScenario,
-                'checkAccess' => [$this, 'checkAccess'],
-            ],
+                'update' => [
+                    'class' => UpdateAction::class,
+                    'model' => $this->modelClass,
+                    'scenario' => $this->updateScenario,
+                    'checkAccess' => [$this, 'checkAccess'],
+                ],
 
-            'delete' => [
-                'class' => DeleteAction::class,
-                'model' => $this->modelClass,
-                'checkAccess' => [$this, 'checkAccess'],
-            ],
-        ];
+                'delete' => [
+                    'class' => DeleteAction::class,
+                    'model' => $this->modelClass,
+                    'checkAccess' => [$this, 'checkAccess'],
+                ],
+            ];
+
+            $this->_actions = ArrayHelper::merge(parent::actions(), $actions);
+        }
+
+        return $this->_actions;
     }
 
     /**
