@@ -77,16 +77,16 @@ class ValidateAction extends Action
      */
     public function run($id = null, string $scenario = null)
     {
+        $request = Yii::$app->request->post();
+        $model = $this->findModel($id);
+
         if ($scenario !== null) {
             $this->scenario = $scenario;
         }
 
-        $model = $this->findModel($id);
+        if (!empty($request) && $model->load($request)) {
 
-        if (Yii::$app->request->post()) {
-            $model->load(Yii::$app->request->post());
             Yii::$app->response->format = Response::FORMAT_JSON;
-
             return ActiveForm::validate($model);
         }
 
