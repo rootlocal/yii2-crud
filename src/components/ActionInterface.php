@@ -12,4 +12,14 @@ namespace rootlocal\crud\components;
 interface ActionInterface
 {
 
+    /**
+     * @return string
+     */
+    public function getViewName();
+
+    /**
+     * @param string $viewName
+     */
+    public function setViewName($viewName);
+
 }

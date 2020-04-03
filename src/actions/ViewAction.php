@@ -33,7 +33,8 @@ use Closure;
  * {
  *      'view' => [
  *          'class' => ViewAction::class,
- *          'model' => Book::class
+ *          'model' => Book::class,
+ *          'viewName' => 'view'
  *      ]
  * }
  * ```
@@ -45,11 +46,6 @@ use Closure;
  */
 class ViewAction extends Action
 {
-    /**
-     * @var string the view name.
-     */
-    public $view = 'view';
-
     /**
      * @var string|Closure
      */
@@ -68,10 +64,10 @@ class ViewAction extends Action
 
         if (Yii::$app->request->isAjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;
-            return $this->controller->renderAjax('view', ['model' => $model]);
+            return $this->controller->renderAjax($this->getViewName(), ['model' => $model]);
         }
 
-        return $this->controller->render('view', ['model' => $model]);
+        return $this->controller->render($this->getViewName(), ['model' => $model]);
     }
 
     /**

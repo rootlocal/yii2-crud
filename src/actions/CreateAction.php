@@ -59,10 +59,6 @@ use Closure;
 class CreateAction extends Action
 {
     /**
-     * @var string the view name.
-     */
-    public $view = 'create';
-    /**
      * @var string|array $redirect the URL to be redirected to. This can be in one of the following formats:
      *
      * - a string representing a URL (e.g. "http://example.com")
@@ -133,10 +129,10 @@ class CreateAction extends Action
 
 
         if (Yii::$app->request->isAjax) {
-            return $this->controller->renderAjax($this->view, ['model' => $model]);
+            return $this->controller->renderAjax($this->getViewName(), ['model' => $model]);
         }
 
-        return $this->controller->render($this->view, ['model' => $model]);
+        return $this->controller->render($this->getViewName(), ['model' => $model]);
     }
 
     /**

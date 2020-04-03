@@ -62,11 +62,6 @@ use rootlocal\crud\components\SearchModelInterface;
 class IndexAction extends Action
 {
     /**
-     * @var string the view name.
-     */
-    public $view = 'index';
-
-    /**
      * @var string|SearchModelInterface|Closure
      */
     private $_searchModel;
@@ -95,13 +90,13 @@ class IndexAction extends Action
 
         if ($request->isAjax || $request->isPjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;
-            return $this->controller->renderAjax($this->view, [
+            return $this->controller->renderAjax($this->getViewName(), [
                 'searchModel' => $this->getModel(),
                 'dataProvider' => $this->getDataProvider(),
             ]);
         }
 
-        return $this->controller->render($this->view, [
+        return $this->controller->render($this->getViewName(), [
             'searchModel' => $this->getModel(),
             'dataProvider' => $this->getDataProvider(),
         ]);

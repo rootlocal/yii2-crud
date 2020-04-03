@@ -53,11 +53,6 @@ use Closure;
 class UpdateAction extends Action
 {
     /**
-     * @var string the view name.
-     */
-    public $view = 'update';
-
-    /**
      * @var string
      */
     private $_scenario;
@@ -139,10 +134,10 @@ class UpdateAction extends Action
         }
 
         if (Yii::$app->request->isAjax) {
-            return $this->controller->renderAjax($this->view, ['model' => $model]);
+            return $this->controller->renderAjax($this->getViewName(), ['model' => $model]);
         }
 
-        return $this->controller->render($this->view, ['model' => $model]);
+        return $this->controller->render($this->getViewName(), ['model' => $model]);
     }
 
     /**
