@@ -62,23 +62,39 @@ class ActiveController extends Controller
 {
     /** @var array */
     private $_actions = [];
+    /** @var array */
+    private $_verbs = [];
 
 
     /**
      * {@inheritdoc}
-     *
      * @return array
      */
     public function verbs()
     {
-        return [
-            'index' => ['GET'],
-            'view' => ['GET'],
-            'create' => ['GET', 'POST'],
-            'update' => ['GET', 'PUT', 'POST'],
-            'delete' => ['POST', 'DELETE'],
-            'validate' => ['POST'],
-        ];
+        $actions = $this->actions();
+
+        if (empty($this->_verbs) && !empty($actions)) {
+
+            $verbs = [
+                'index' => ['GET'],
+                'view' => ['GET'],
+                'create' => ['GET', 'POST'],
+                'update' => ['GET', 'PUT', 'POST'],
+                'delete' => ['POST', 'DELETE'],
+                'validate' => ['POST'],
+            ];
+
+            $verbs = ArrayHelper::merge(parent::verbs(), $verbs);
+
+            foreach ($verbs as $key => $value) {
+                if (array_key_exists($key, $actions)) {
+                    $this->_verbs[$key] = $value;
+                }
+            }
+        }
+
+        return $this->_verbs;
     }
 
     /**
