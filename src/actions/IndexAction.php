@@ -2,14 +2,14 @@
 
 namespace rootlocal\crud\actions;
 
-use Yii;
-use yii\web\Response;
-use yii\base\ErrorException;
-use yii\data\ActiveDataProvider;
-use yii\base\InvalidConfigException;
 use Closure;
 use rootlocal\crud\components\Action;
 use rootlocal\crud\components\SearchModelInterface;
+use Yii;
+use yii\base\ErrorException;
+use yii\base\InvalidConfigException;
+use yii\data\ActiveDataProvider;
+use yii\web\Response;
 
 /**
  * Class IndexAction
@@ -54,7 +54,7 @@ use rootlocal\crud\components\SearchModelInterface;
  * @property Closure|null $dataProvider implements a data provider (instanceof [[Closure]])
  * @property string|SearchModelInterface|Closure $searchModel ActiveRecord searchModel
  * @property SearchModelInterface $model Readonly ActiveRecord object instanceof [[SearchModelInterface]]
- * @property array $queryParams The request GET parameter values.
+ * @property-read array $queryParams The request GET parameter values.
  *
  * @author Alexander Zakharov <sys@eml.ru>
  * @package rootlocal\crud\actions
@@ -76,7 +76,7 @@ class IndexAction extends Action
     /**
      * @var array $queryParams The request GET parameter values.
      */
-    private $_queryParams;
+    private array $_queryParams = [];
 
 
     /**
@@ -170,7 +170,7 @@ class IndexAction extends Action
      */
     public function getQueryParams()
     {
-        if ($this->_queryParams === null) {
+        if (empty($this->_queryParams)) {
 
             $queryParams = Yii::$app->getRequest()->getQueryParams();
 
