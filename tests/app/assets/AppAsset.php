@@ -8,34 +8,21 @@ use yii\web\YiiAsset;
 
 /**
  * Class AppAsset Main backend application asset bundle.
+ *
+ * @author Alexander Zakharov <sys@eml.ru>
  * @package rootlocal\crud\test\app\assets
  */
 class AppAsset extends AssetBundle
 {
-    /**
-     * @var array
-     */
-    public $css = [
-        'css/site.css',
-    ];
+    /** @var array */
+    public $css = ['css/site.css',];
+    /** @var array */
+    public $js = [];
+    /** @var array */
+    public $depends = [YiiAsset::class, BootstrapAsset::class,];
 
-    /**
-     * @var array
-     */
-    public $js = [
-    ];
 
-    /**
-     * @var array
-     */
-    public $depends = [
-        YiiAsset::class,
-        BootstrapAsset::class,
-    ];
-
-    /**
-     * @inheritdoc
-     */
+    /** @inheritdoc */
     public function init()
     {
         parent::init();

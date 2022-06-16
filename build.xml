@@ -27,13 +27,18 @@
             description="Cleanup build artifacts">
 
         <delete>
-            <fileset dir="${basedir}/tests/app/runtime" includes="**/*"/>
-            <fileset dir="${basedir}/tests/app/web/assets" includes="**/*"/>
-            <fileset dir="${basedir}/tests/codeception/_output" includes="**/*"/>
+            <fileset dir="${basedir}/tests/app/runtime" includes="**/*" />
+            <!-- <fileset dir="${basedir}/tests/app/web/assets" includes="**/*" /> -->
+            <fileset dir="${basedir}/tests/codeception/_output" includes="**/*" />
+            <fileset dir="${basedir}" includes="composer.phar" />
+            <fileset dir="${basedir}" includes="cache.properties" />
+            <fileset dir="${basedir}/build" includes="composer.properties.tmp" />
         </delete>
 
-        <delete dir="${basedir}/vendor"/>
-        <property name="clean.done" value="true"/>
+        <delete dir="${basedir}/vendor" />
+        <delete dir="${basedir}/build/logs" />
+        <delete dir="${basedir}/build/pdepend" />
+        <property name="clean.done" value="true" />
     </target>
 
     <target name="prepare"
@@ -62,6 +67,7 @@
                 <include name="**/*.php"/>
                 <modified/>
             </fileset>
+
             <fileset dir="${basedir}/tests">
                 <include name="**/*.php"/>
                 <modified/>

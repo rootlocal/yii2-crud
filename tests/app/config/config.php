@@ -50,7 +50,7 @@ return [
 
         'mailer' => [
             'class' => Mailer::class,
-            'viewPath' => '@common/mail',
+            'viewPath' => '@app/mail',
             'useFileTransport' => true,
         ],
 

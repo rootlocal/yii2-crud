@@ -21,7 +21,7 @@ class BookCest
      * @see \Codeception\Module\Yii2::loadFixtures()
      * @see \Codeception\Module\Yii2::_before()
      */
-    public function _fixtures()
+    public function _fixtures(): array
     {
         return [
             'user' => [
@@ -48,6 +48,8 @@ class BookCest
 
     /**
      * @param FunctionalTester $I
+     * @skip
+     *
      */
     public function checkIndexAction(FunctionalTester $I)
     {

@@ -3,6 +3,9 @@
 /**
  * Application configuration for functional tests
  */
+
+use rootlocal\crud\test\app\models\db\User;
+
 return yii\helpers\ArrayHelper::merge(
     require(__DIR__ . '/config.php'),
     require(__DIR__ . '/web.php'),
@@ -10,7 +13,7 @@ return yii\helpers\ArrayHelper::merge(
         'components' => [
 
             'user' => [
-                'identityClass' => \rootlocal\crud\test\app\models\db\User::class,
+                'identityClass' => User::class,
                 'enableAutoLogin' => true,
                 'identityCookie' => ['name' => '_identity-backend', 'httpOnly' => true],
             ],
