@@ -36,3 +36,4 @@ composer.lock
 Gemfile.local
 Gemfile.lock
 phpunit.xml
+cache.properties

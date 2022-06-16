@@ -1,6 +1,8 @@
 <?php
 
+use yii\db\Connection;
+
 return [
-    'class' => \yii\db\Connection::class,
+    'class' => Connection::class,
     'dsn' => 'sqlite:@runtime/data.db',
 ];

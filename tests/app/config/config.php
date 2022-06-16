@@ -2,10 +2,16 @@
 /**
  * Application configuration shared by all test types
  */
+
+use rootlocal\crud\Bootstrap;
+use yii\caching\DummyCache;
+use yii\console\controllers\FixtureController;
+use yii\swiftmailer\Mailer;
+
 return [
     'id' => 'test',
     'basePath' => dirname(__DIR__),
-    'vendorPath' => dirname(dirname(dirname(__DIR__))) . '/vendor',
+    'vendorPath' => dirname(__DIR__, 3) . '/vendor',
     'controllerNamespace' => 'rootlocal\crud\test\app\controllers',
     'language' => 'en-US',
     'sourceLanguage' => 'en-US',
@@ -13,7 +19,7 @@ return [
     'timeZone' => 'Europe/Moscow',
 
     'bootstrap' => [
-        \rootlocal\crud\Bootstrap::class,
+        Bootstrap::class,
     ],
 
     'aliases' => [
@@ -27,7 +33,7 @@ return [
 
     'controllerMap' => [
         'fixture' => [
-            'class' => \yii\console\controllers\FixtureController::class,
+            'class' => FixtureController::class,
             'namespace' => '\tests\codeception\fixtures',
         ],
     ],
@@ -43,6 +49,8 @@ return [
         'db' => require(__DIR__ . '/db.php'),
 
         'mailer' => [
+            'class' => Mailer::class,
+            'viewPath' => '@common/mail',
             'useFileTransport' => true,
         ],
 
@@ -52,7 +60,7 @@ return [
         ],
 
         'cache' => [
-            'class' => \yii\caching\DummyCache::class,
+            'class' => DummyCache::class,
         ],
     ],
 ];

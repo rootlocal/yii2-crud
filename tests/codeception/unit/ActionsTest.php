@@ -11,6 +11,8 @@ use rootlocal\crud\actions\ValidateAction;
 use rootlocal\crud\actions\ViewAction;
 use rootlocal\crud\components\SearchModelInterface;
 use rootlocal\crud\test\app\models\search\BookSearch;
+use rootlocal\crud\tests\UnitTester;
+use yii\base\Model;
 use yii\base\Module;
 use yii\web\Controller;
 use rootlocal\crud\test\app\fixtures\BookFixture;
@@ -26,10 +28,9 @@ use yii\base\InvalidConfigException;
  */
 class ActionsTest extends Unit
 {
-    /**
-     * @var \rootlocal\crud\tests\UnitTester
-     */
-    protected $tester;
+    /** @var UnitTester|null */
+    protected ?UnitTester $tester = null;
+
 
     public function _before()
     {
@@ -45,6 +46,10 @@ class ActionsTest extends Unit
     {
     }
 
+    /**
+     * @throws InvalidConfigException
+     * @throws ErrorException
+     */
     public function testIndexAction()
     {
         // No model
@@ -67,24 +72,26 @@ class ActionsTest extends Unit
         $action = new IndexAction('index', new Controller('book', new Module('test')), [
             'searchModel' => BookSearch::class,
         ]);
+
+
         expect($action->getModel())->isInstanceOf(SearchModelInterface::class);
 
         // Model is object ActiveRecord
         $action = new IndexAction('index', new Controller('book', new Module('test')), [
             'searchModel' => new BookSearch()
         ]);
+
         expect($action->getModel())->isInstanceOf(SearchModelInterface::class);
 
         // Model is Lambda
         $action = new IndexAction('index', new Controller('book', new Module('test')), [
             'searchModel' => function () {
-
                 $model = new BookSearch();
                 $model->query = $model::find()->active();
-
                 return $model;
             },
         ]);
+
         expect($action->getModel())->isInstanceOf(SearchModelInterface::class);
 
         // Set DataProvider
@@ -92,9 +99,7 @@ class ActionsTest extends Unit
             'searchModel' => BookSearch::class,
             'dataProvider' => function ($model, $queryParams) {
 
-                /**
-                 * @var SearchModelInterface $model
-                 */
+                /** @var SearchModelInterface $model */
                 return $model->search($queryParams);
             },
         ]);
@@ -107,9 +112,7 @@ class ActionsTest extends Unit
                 'searchModel' => BookSearch::class,
                 'dataProvider' => function ($model, $queryParams) {
 
-                    /**
-                     * @var SearchModelInterface $model
-                     */
+                    /** @var SearchModelInterface $model */
                     return '';
                 },
             ]);
@@ -119,6 +122,9 @@ class ActionsTest extends Unit
 
     }
 
+    /**
+     * @throws ErrorException
+     */
     public function testCreateAction()
     {
         // No model
@@ -145,16 +151,14 @@ class ActionsTest extends Unit
 
         // Model is Lambda
         $action = new CreateAction('create', new Controller('book', new Module('test')), [
+
             'model' => function ($scenario) {
-
-                /**
-                 * @var string $scenario
-                 */
-
+                /** @var string $scenario */
                 return new Book(['scenario' => $scenario]);
             },
             'scenario' => Book::SCENARIO_CREATE
         ]);
+
         expect($action->getModel())->isInstanceOf(ActiveRecord::class);
     }
 
@@ -197,7 +201,8 @@ class ActionsTest extends Unit
         $action = new ValidateAction('validate', new Controller('book', new Module('test')), [
             'model' => Book::class
         ]);
-        expect($action->getScenario())->equals(ActiveRecord::SCENARIO_DEFAULT);
+
+        expect($action->getScenario())->equals(Model::SCENARIO_DEFAULT);
     }
 
 }
