@@ -1,7 +1,9 @@
 <?php
 
+use yii\db\Connection;
+
 return [
-    'class' => \yii\db\Connection::class,
+    'class' => Connection::class,
     'dsn' => 'pgsql:host=localhost;dbname=test',
     'username' => 'test',
     'password' => 'test',

@@ -6,7 +6,7 @@
     <property name="codeception.script" value="${basedir}/vendor/bin/codecept"/>
     <property name="codeception.suites.default" value=""/>
     <property name="codeception.options.default"
-              value="--xml --coverage --coverage-xml --coverage-html --coverage-crap4j --no-ansi"
+              value="--xml --html --coverage --coverage-xml --coverage-html --coverage-crap4j"
     />
 
     <condition property="codeception.suites" value="${codeception.suites.default}">
